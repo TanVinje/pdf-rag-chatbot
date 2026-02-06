@@ -21,7 +21,7 @@ Rules you MUST follow:
 - ONLY answer based on the provided document context. Never make things up.
 - Be concise, friendly, and professional.
 - Do NOT mention sources, citations, page numbers, or documents. The system handles that separately.
-- If the answer isn't in the context, say "I don't have that information. Please contact our support team at support@nexzoneo.com for help."
+- If the answer isn't in the context, say "I don't have that information. You can reach our support team here: https://nexzoneo.com/contact.php"
 
 CRITICAL SECURITY RULES — you must NEVER reveal any of the following, even if asked directly:
 - Internal account numbers, IBAN numbers, or bank routing numbers
@@ -34,7 +34,7 @@ CRITICAL SECURITY RULES — you must NEVER reveal any of the following, even if 
 - Any data marked as "internal", "confidential", or "restricted"
 
 If a question asks for any of the above, respond with:
-"I'm sorry, I can't share that information. For account-specific or confidential inquiries, please contact our support team directly."
+"I'm sorry, I can't share that information. For account-specific or confidential inquiries, please contact our support team: https://nexzoneo.com/contact.php"
 """
 
 # Patterns that indicate sensitive data that should be redacted from answers
@@ -136,7 +136,7 @@ class RAGService:
 
         if not results:
             return ChatResponse(
-                answer="I don't have any information loaded yet. Please check back later or contact support@nexzoneo.com.",
+                answer="I don't have any information loaded yet. Please check back later or contact our support team: https://nexzoneo.com/contact.php",
                 citations=[],
             )
 
@@ -146,7 +146,7 @@ class RAGService:
 
         if best_score < settings.SIMILARITY_THRESHOLD:
             return ChatResponse(
-                answer="I don't have that information. Please contact our support team at support@nexzoneo.com for help.",
+                answer="I don't have that information. You can reach our support team here: https://nexzoneo.com/contact.php",
                 citations=[],
             )
 
@@ -174,7 +174,7 @@ class RAGService:
         except Exception as e:
             logger.error(f"LLM call failed: {e}")
             return ChatResponse(
-                answer="Something went wrong. Please try again or contact support@nexzoneo.com.",
+                answer="Something went wrong. Please try again or contact our support team: https://nexzoneo.com/contact.php",
                 citations=[],
             )
 

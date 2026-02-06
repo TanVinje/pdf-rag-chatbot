@@ -150,15 +150,20 @@ function appendBotMessage(answer, citations) {
   div.className = "message bot";
 
   const answerP = document.createElement("p");
-  answerP.textContent = answer;
+  answerP.innerHTML = linkify(escapeHtml(answer));
   div.appendChild(answerP);
-
-  // Don't show raw citations to end users — keep it clean
-  // Citations are still returned by the API for admin/logging purposes
 
   chatMessages.appendChild(div);
   scrollToBottom();
   return div;
+}
+
+function linkify(text) {
+  // Turn URLs into clickable links
+  return text.replace(
+    /(https?:\/\/[^\s<]+)/g,
+    '<a href="$1" target="_blank" rel="noopener noreferrer" class="chat-link">$1</a>'
+  );
 }
 
 function appendLoading() {

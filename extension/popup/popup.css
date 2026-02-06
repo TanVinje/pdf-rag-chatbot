@@ -229,6 +229,17 @@ body {
   padding: 6px 14px;
 }
 
+/* Chat links */
+.chat-link {
+  color: var(--brand);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.chat-link:hover {
+  text-decoration: underline;
+}
+
 /* Loading dots animation */
 .loading-dots {
   display: inline-flex;
