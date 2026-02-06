@@ -174,8 +174,38 @@ body {
 }
 
 /* Message bubbles */
+.message-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 90%;
+}
+
+.message-wrapper.bot-wrapper {
+  align-self: flex-start;
+}
+
+.bot-avatar {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #764ba2;
+  margin-top: 2px;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.bot-avatar svg {
+  width: 28px;
+  height: 28px;
+}
+
 .message {
-  max-width: 85%;
+  max-width: 100%;
   padding: 10px 14px;
   border-radius: var(--radius);
   font-size: 13px;
@@ -186,13 +216,13 @@ body {
 
 .message.user {
   align-self: flex-end;
+  max-width: 85%;
   background: var(--user-bubble);
   color: var(--user-text);
   border-bottom-right-radius: 4px;
 }
 
 .message.bot {
-  align-self: flex-start;
   background: var(--bot-bubble);
   color: var(--bot-text);
   border-bottom-left-radius: 4px;

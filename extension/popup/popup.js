@@ -137,15 +137,41 @@ async function sendQuestion() {
 // ---- DOM Helpers ----
 
 function appendMessage(text, type) {
-  const div = document.createElement("div");
-  div.className = `message ${type}`;
-  div.textContent = text;
-  chatMessages.appendChild(div);
-  scrollToBottom();
-  return div;
+  if (type === "bot") {
+    const wrapper = document.createElement("div");
+    wrapper.className = "message-wrapper bot-wrapper";
+
+    const avatar = document.createElement("div");
+    avatar.className = "bot-avatar";
+    avatar.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/><path d="M8 15s1.5 2 4 2 4-2 4-2"/><rect x="5" y="4" width="14" height="16" rx="3" ry="3"/><path d="M9 2v2m6-2v2"/></svg>';
+
+    const div = document.createElement("div");
+    div.className = `message ${type}`;
+    div.textContent = text;
+
+    wrapper.appendChild(avatar);
+    wrapper.appendChild(div);
+    chatMessages.appendChild(wrapper);
+    scrollToBottom();
+    return wrapper;
+  } else {
+    const div = document.createElement("div");
+    div.className = `message ${type}`;
+    div.textContent = text;
+    chatMessages.appendChild(div);
+    scrollToBottom();
+    return div;
+  }
 }
 
 function appendBotMessage(answer, citations) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "message-wrapper bot-wrapper";
+
+  const avatar = document.createElement("div");
+  avatar.className = "bot-avatar";
+  avatar.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M12 8V12l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>';
+
   const div = document.createElement("div");
   div.className = "message bot";
 
@@ -153,9 +179,11 @@ function appendBotMessage(answer, citations) {
   answerP.innerHTML = linkify(escapeHtml(answer));
   div.appendChild(answerP);
 
-  chatMessages.appendChild(div);
+  wrapper.appendChild(avatar);
+  wrapper.appendChild(div);
+  chatMessages.appendChild(wrapper);
   scrollToBottom();
-  return div;
+  return wrapper;
 }
 
 function linkify(text) {
@@ -167,13 +195,23 @@ function linkify(text) {
 }
 
 function appendLoading() {
+  const wrapper = document.createElement("div");
+  wrapper.className = "message-wrapper bot-wrapper";
+
+  const avatar = document.createElement("div");
+  avatar.className = "bot-avatar";
+  avatar.innerHTML = '<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" fill="white" opacity="0.2"/><path d="M16 8c-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8z" fill="white" opacity="0.9"/><circle cx="13" cy="15" r="1.5" fill="currentColor"/><circle cx="19" cy="15" r="1.5" fill="currentColor"/><path d="M13 19c0 0 1 1.5 3 1.5s3-1.5 3-1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12 12l-2-2M20 12l2-2" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>';
+
   const div = document.createElement("div");
   div.className = "message bot";
   div.innerHTML =
     '<div class="loading-dots"><span></span><span></span><span></span></div>';
-  chatMessages.appendChild(div);
+
+  wrapper.appendChild(avatar);
+  wrapper.appendChild(div);
+  chatMessages.appendChild(wrapper);
   scrollToBottom();
-  return div;
+  return wrapper;
 }
 
 function scrollToBottom() {
