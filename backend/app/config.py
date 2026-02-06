@@ -17,9 +17,13 @@ class Settings:
     HOST: str = os.getenv("HOST", "0.0.0.0")
     PORT: int = int(os.getenv("PORT", "8000"))
 
+    USE_LOCAL_EMBEDDINGS: bool = os.getenv("USE_LOCAL_EMBEDDINGS", "true").lower() in ("true", "1", "yes")
+
     @property
     def use_openai_embeddings(self) -> bool:
-        """Auto-detect embedding provider based on API key presence."""
+        """Use OpenAI embeddings only if explicitly enabled (local is default)."""
+        if self.USE_LOCAL_EMBEDDINGS:
+            return False
         return bool(self.OPENAI_API_KEY and self.OPENAI_API_KEY.strip())
 
 

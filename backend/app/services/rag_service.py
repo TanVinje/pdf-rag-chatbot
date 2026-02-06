@@ -52,19 +52,43 @@ def _extract_citations(results: list[QueryResult]) -> list[Citation]:
     return citations
 
 
+def _create_llm_client() -> tuple[OpenAI, str]:
+    """Create LLM client, preferring Ollama (free local) over OpenAI.
+
+    Returns:
+        Tuple of (OpenAI-compatible client, model name).
+    """
+    # Try Ollama first (free, local)
+    try:
+        client = OpenAI(
+            base_url="http://localhost:11434/v1",
+            api_key="ollama",  # Ollama doesn't need a real key
+        )
+        # Quick check that Ollama is reachable
+        client.models.list()
+        logger.info("Using Ollama (local) for chat with model: llama3.2")
+        return client, "llama3.2"
+    except Exception:
+        logger.info("Ollama not available, checking for OpenAI API key...")
+
+    # Fall back to OpenAI
+    if settings.OPENAI_API_KEY and settings.OPENAI_API_KEY.strip():
+        client = OpenAI(api_key=settings.OPENAI_API_KEY)
+        logger.info(f"Using OpenAI for chat with model: {settings.OPENAI_CHAT_MODEL}")
+        return client, settings.OPENAI_CHAT_MODEL
+
+    return None, ""
+
+
 class RAGService:
     """Retrieval-Augmented Generation service that ties together
     vector search and LLM calls."""
 
     def __init__(self, vector_store: VectorStore):
         self._vector_store = vector_store
-        if settings.use_openai_embeddings:
-            self._llm_client = OpenAI(api_key=settings.OPENAI_API_KEY)
-        else:
-            self._llm_client = None
-            logger.warning(
-                "No OpenAI API key configured. Chat will not work without an LLM."
-            )
+        self._llm_client, self._model = _create_llm_client()
+        if not self._llm_client:
+            logger.warning("No LLM available. Install Ollama or set OPENAI_API_KEY.")
 
     def chat(self, question: str) -> ChatResponse:
         """Process a user question using RAG.
@@ -82,7 +106,7 @@ class RAGService:
         """
         if not self._llm_client:
             return ChatResponse(
-                answer="Chat is unavailable. Please configure an OpenAI API key.",
+                answer="No LLM available. Please install Ollama or configure an OpenAI API key.",
                 citations=[],
             )
 
@@ -119,7 +143,7 @@ class RAGService:
 
         try:
             response = self._llm_client.chat.completions.create(
-                model=settings.OPENAI_CHAT_MODEL,
+                model=self._model,
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_message},

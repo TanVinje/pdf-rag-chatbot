@@ -2,7 +2,9 @@ import logging
 from dataclasses import dataclass
 
 import chromadb
+from chromadb.api.types import EmbeddingFunction, Documents, Embeddings
 from chromadb.config import Settings as ChromaSettings
+from openai import OpenAI
 
 from app.config import settings
 from app.services.pdf_processor import TextChunk
@@ -22,6 +24,21 @@ class QueryResult:
     score: float
 
 
+class OpenAIEmbeddings(EmbeddingFunction):
+    """Custom OpenAI embedding function compatible with openai>=1.0.0."""
+
+    def __init__(self, api_key: str, model_name: str):
+        self._client = OpenAI(api_key=api_key)
+        self._model = model_name
+
+    def __call__(self, input: Documents) -> Embeddings:
+        response = self._client.embeddings.create(
+            input=input,
+            model=self._model,
+        )
+        return [item.embedding for item in response.data]
+
+
 def _get_embedding_function():
     """Select embedding function based on configuration.
 
@@ -29,9 +46,8 @@ def _get_embedding_function():
     Otherwise, falls back to sentence-transformers/all-MiniLM-L6-v2.
     """
     if settings.use_openai_embeddings:
-        from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
         logger.info("Using OpenAI embeddings (text-embedding-3-small)")
-        return OpenAIEmbeddingFunction(
+        return OpenAIEmbeddings(
             api_key=settings.OPENAI_API_KEY,
             model_name=settings.OPENAI_EMBEDDING_MODEL,
         )
