@@ -1,0 +1,13 @@
+# Environment secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+venv/
+
+# ChromaDB storage
+chroma_db/
+
+# OS
+.DS_Store
