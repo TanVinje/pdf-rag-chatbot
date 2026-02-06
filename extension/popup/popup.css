@@ -173,26 +173,6 @@ body {
   background: var(--bg-chat);
 }
 
-.welcome-message {
-  text-align: center;
-  padding: 40px 20px 32px;
-  color: var(--text-secondary);
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.welcome-icon {
-  margin-bottom: 12px;
-  color: var(--brand);
-}
-
-.welcome-message strong {
-  color: var(--text-primary);
-  font-size: 15px;
-  display: block;
-  margin-bottom: 6px;
-}
-
 /* Message bubbles */
 .message {
   max-width: 85%;

@@ -20,6 +20,10 @@ let backendUrl = DEFAULT_BACKEND_URL;
 
 document.addEventListener("DOMContentLoaded", async () => {
   await loadSettings();
+  
+  // Show greeting message on load
+  appendMessage("Welcome to Nexzoneo Support! How can we help you today?", "bot");
+  
   questionInput.focus();
 });
 
@@ -93,10 +97,6 @@ questionInput.addEventListener("keydown", (e) => {
 async function sendQuestion() {
   const question = questionInput.value.trim();
   if (!question) return;
-
-  // Clear welcome message if present
-  const welcome = chatMessages.querySelector(".welcome-message");
-  if (welcome) welcome.remove();
 
   // Add user message
   appendMessage(question, "user");
