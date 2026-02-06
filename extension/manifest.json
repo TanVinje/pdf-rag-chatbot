@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "PDF RAG Chatbot",
-  "description": "AI chatbot that answers questions from your uploaded PDF documents",
+  "name": "Nexzoneo Support",
+  "description": "AI-powered support chatbot for Nexzoneo digital banking",
   "version": "1.0.0",
   "action": {
     "default_popup": "popup/popup.html"

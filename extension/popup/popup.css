@@ -1,5 +1,5 @@
 /* ============================================
-   PDF RAG Chatbot — Chrome Extension Popup
+   Nexzoneo Support Chatbot — Chrome Extension
    ============================================ */
 
 :root {
@@ -8,16 +8,17 @@
   --bg-chat: #f9fafb;
   --text-primary: #1a1a2e;
   --text-secondary: #6b7280;
-  --accent: #4f46e5;
-  --accent-light: #eef2ff;
-  --accent-hover: #4338ca;
+  --accent: #0f172a;
+  --accent-light: #f1f5f9;
+  --accent-hover: #1e293b;
+  --brand: #3b82f6;
+  --brand-light: #eff6ff;
   --border: #e5e7eb;
-  --user-bubble: #4f46e5;
+  --user-bubble: #0f172a;
   --user-text: #ffffff;
   --bot-bubble: #ffffff;
   --bot-text: #1a1a2e;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --radius: 12px;
   --radius-sm: 8px;
 }
@@ -57,7 +58,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -123,7 +124,7 @@ body {
 }
 
 .settings-input:focus {
-  border-color: var(--accent);
+  border-color: var(--brand);
 }
 
 .btn {
@@ -174,14 +175,22 @@ body {
 
 .welcome-message {
   text-align: center;
-  padding: 32px 16px;
+  padding: 40px 20px 32px;
   color: var(--text-secondary);
   font-size: 13px;
   line-height: 1.6;
 }
 
+.welcome-icon {
+  margin-bottom: 12px;
+  color: var(--brand);
+}
+
 .welcome-message strong {
   color: var(--text-primary);
+  font-size: 15px;
+  display: block;
+  margin-bottom: 6px;
 }
 
 /* Message bubbles */
@@ -212,40 +221,12 @@ body {
 
 .message.system {
   align-self: center;
-  background: var(--accent-light);
-  color: var(--accent);
+  background: var(--brand-light);
+  color: var(--brand);
   font-size: 12px;
   font-weight: 500;
   border-radius: 20px;
   padding: 6px 14px;
-}
-
-/* Citations */
-.citations {
-  margin-top: 10px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
-}
-
-.citations-title {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 6px;
-}
-
-.citation-item {
-  font-size: 11px;
-  color: var(--text-secondary);
-  padding: 4px 0;
-  line-height: 1.4;
-}
-
-.citation-item .citation-source {
-  font-weight: 600;
-  color: var(--accent);
 }
 
 /* Loading dots animation */
@@ -274,7 +255,7 @@ body {
 
 /* ---------- Input Area ---------- */
 .input-area {
-  padding: 12px 16px;
+  padding: 12px 16px 10px;
   background: var(--bg-primary);
   border-top: 1px solid var(--border);
 }
@@ -283,15 +264,6 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.upload-btn {
-  color: var(--accent);
-  flex-shrink: 0;
-}
-
-.upload-btn:hover {
-  background: var(--accent-light);
 }
 
 .question-input {
@@ -305,8 +277,8 @@ body {
 }
 
 .question-input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .send-btn {
@@ -318,10 +290,17 @@ body {
   background: var(--accent-light);
 }
 
-.send-btn:disabled,
-.upload-btn:disabled {
+.send-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.powered-by {
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  opacity: 0.6;
 }
 
 /* ---------- Scrollbar ---------- */

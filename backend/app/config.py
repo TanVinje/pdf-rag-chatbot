@@ -17,6 +17,9 @@ class Settings:
     HOST: str = os.getenv("HOST", "0.0.0.0")
     PORT: int = int(os.getenv("PORT", "8000"))
 
+    # Admin secret for /ingest endpoint (set a strong random string)
+    ADMIN_SECRET: str = os.getenv("ADMIN_SECRET", "nexzoneo-admin-2026")
+
     USE_LOCAL_EMBEDDINGS: bool = os.getenv("USE_LOCAL_EMBEDDINGS", "true").lower() in ("true", "1", "yes")
 
     @property

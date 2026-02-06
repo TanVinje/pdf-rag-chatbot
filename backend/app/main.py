@@ -1,7 +1,7 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
@@ -39,13 +39,13 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="PDF RAG Chatbot API",
-    description="A RAG-based chatbot that answers questions from uploaded PDF documents.",
+    title="Nexzoneo Support Chatbot API",
+    description="AI-powered support chatbot for Nexzoneo digital banking.",
     version="1.0.0",
     lifespan=lifespan,
 )
 
-# CORS configuration — allow all origins for development
+# CORS configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -55,9 +55,24 @@ app.add_middleware(
 )
 
 
+def _verify_admin(authorization: str | None) -> None:
+    """Verify admin authorization header."""
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header required.")
+    # Expect: "Bearer <admin_secret>"
+    parts = authorization.split(" ", 1)
+    if len(parts) != 2 or parts[0].lower() != "bearer" or parts[1] != settings.ADMIN_SECRET:
+        raise HTTPException(status_code=403, detail="Invalid admin credentials.")
+
+
 @app.post("/ingest", response_model=IngestResponse)
-async def ingest_pdfs(files: list[UploadFile] = File(...)):
-    """Upload and ingest one or more PDF files into the vector store."""
+async def ingest_pdfs(
+    files: list[UploadFile] = File(...),
+    authorization: str | None = Header(default=None),
+):
+    """[ADMIN ONLY] Upload and ingest PDF files into the knowledge base."""
+    _verify_admin(authorization)
+
     if not files:
         raise HTTPException(status_code=400, detail="No files provided.")
 
@@ -99,7 +114,7 @@ async def ingest_pdfs(files: list[UploadFile] = File(...)):
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
-    """Ask a question about the uploaded documents."""
+    """Ask a question about Nexzoneo products, policies, and services."""
     if not request.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty.")
 

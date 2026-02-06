@@ -1,5 +1,5 @@
 // ============================================
-// PDF RAG Chatbot — Popup Logic
+// Nexzoneo Support Chatbot — Popup Logic
 // ============================================
 
 const DEFAULT_BACKEND_URL = "http://localhost:8000";
@@ -13,8 +13,6 @@ const settingsStatus = document.getElementById("settings-status");
 const chatMessages = document.getElementById("chat-messages");
 const questionInput = document.getElementById("question-input");
 const sendBtn = document.getElementById("send-btn");
-const uploadBtn = document.getElementById("upload-btn");
-const fileInput = document.getElementById("file-input");
 
 let backendUrl = DEFAULT_BACKEND_URL;
 
@@ -127,7 +125,7 @@ async function sendQuestion() {
   } catch (err) {
     loadingEl.remove();
     appendMessage(
-      "Could not connect to the backend. Make sure it is running.",
+      "Could not connect to our support service. Please try again later.",
       "bot"
     );
   }
@@ -135,60 +133,6 @@ async function sendQuestion() {
   setInputState(true);
   questionInput.focus();
 }
-
-// ---- File Upload ----
-
-uploadBtn.addEventListener("click", () => fileInput.click());
-
-fileInput.addEventListener("change", async () => {
-  const files = fileInput.files;
-  if (!files || files.length === 0) return;
-
-  // Clear welcome message if present
-  const welcome = chatMessages.querySelector(".welcome-message");
-  if (welcome) welcome.remove();
-
-  const fileNames = Array.from(files).map((f) => f.name).join(", ");
-  appendMessage(`Uploading: ${fileNames}`, "system");
-  setInputState(false);
-
-  const loadingEl = appendLoading();
-
-  try {
-    const formData = new FormData();
-    for (const file of files) {
-      formData.append("files", file);
-    }
-
-    const resp = await fetch(`${backendUrl}/ingest`, {
-      method: "POST",
-      body: formData,
-    });
-
-    loadingEl.remove();
-
-    if (!resp.ok) {
-      const err = await resp.json().catch(() => ({ detail: "Upload failed" }));
-      appendMessage(err.detail || "Failed to upload PDFs.", "bot");
-    } else {
-      const data = await resp.json();
-      appendMessage(
-        `${data.message} (${data.total_chunks} chunks indexed)`,
-        "system"
-      );
-    }
-  } catch {
-    loadingEl.remove();
-    appendMessage(
-      "Could not connect to the backend. Make sure it is running.",
-      "bot"
-    );
-  }
-
-  fileInput.value = "";
-  setInputState(true);
-  questionInput.focus();
-});
 
 // ---- DOM Helpers ----
 
@@ -209,24 +153,8 @@ function appendBotMessage(answer, citations) {
   answerP.textContent = answer;
   div.appendChild(answerP);
 
-  if (citations && citations.length > 0) {
-    const citationsDiv = document.createElement("div");
-    citationsDiv.className = "citations";
-
-    const title = document.createElement("div");
-    title.className = "citations-title";
-    title.textContent = "Sources";
-    citationsDiv.appendChild(title);
-
-    citations.forEach((c) => {
-      const item = document.createElement("div");
-      item.className = "citation-item";
-      item.innerHTML = `<span class="citation-source">${escapeHtml(c.pdf_name)}</span>, Page ${c.page}`;
-      citationsDiv.appendChild(item);
-    });
-
-    div.appendChild(citationsDiv);
-  }
+  // Don't show raw citations to end users — keep it clean
+  // Citations are still returned by the API for admin/logging purposes
 
   chatMessages.appendChild(div);
   scrollToBottom();
@@ -250,7 +178,6 @@ function scrollToBottom() {
 function setInputState(enabled) {
   questionInput.disabled = !enabled;
   sendBtn.disabled = !enabled;
-  uploadBtn.disabled = !enabled;
 }
 
 function escapeHtml(text) {

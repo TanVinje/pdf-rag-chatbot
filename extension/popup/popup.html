@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PDF RAG Chatbot</title>
+  <title>Nexzoneo Support</title>
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
@@ -12,13 +12,9 @@
     <header class="header">
       <h1 class="header-title">
         <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-          <line x1="16" y1="13" x2="8" y2="13"/>
-          <line x1="16" y1="17" x2="8" y2="17"/>
-          <polyline points="10 9 9 9 8 9"/>
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
         </svg>
-        PDF Chatbot
+        Nexzoneo Support
       </h1>
       <button id="settings-btn" class="icon-btn" title="Settings">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
@@ -46,25 +42,24 @@
     <!-- Chat Messages -->
     <div id="chat-messages" class="chat-messages">
       <div class="welcome-message">
-        <p><strong>Welcome!</strong> Upload a PDF to get started, then ask questions about its contents.</p>
+        <div class="welcome-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <p><strong>Welcome to Nexzoneo Support!</strong></p>
+        <p>Ask me anything about our products, services, privacy policy, terms &amp; conditions, or GDPR compliance.</p>
       </div>
     </div>
 
     <!-- Input Area -->
     <div class="input-area">
       <div class="input-row">
-        <button id="upload-btn" class="icon-btn upload-btn" title="Upload PDF">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="17 8 12 3 7 8"/>
-            <line x1="12" y1="3" x2="12" y2="15"/>
-          </svg>
-        </button>
         <input
           type="text"
           id="question-input"
           class="question-input"
-          placeholder="Ask a question about your PDFs..."
+          placeholder="Ask about our products, policies, GDPR..."
         />
         <button id="send-btn" class="icon-btn send-btn" title="Send">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
@@ -73,10 +68,8 @@
           </svg>
         </button>
       </div>
+      <div class="powered-by">Powered by Nexzoneo</div>
     </div>
-
-    <!-- Hidden file input -->
-    <input type="file" id="file-input" accept=".pdf" multiple hidden />
   </div>
 
   <script src="popup.js"></script>
