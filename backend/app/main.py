@@ -122,6 +122,15 @@ async def chat(request: ChatRequest):
     return response
 
 
+@app.post("/clear")
+async def clear_knowledge_base(authorization: str | None = Header(default=None)):
+    """[ADMIN ONLY] Clear all documents from the knowledge base."""
+    _verify_admin(authorization)
+    vector_store.clear()
+    logger.info("Knowledge base cleared by admin.")
+    return {"message": "Knowledge base cleared successfully."}
+
+
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
     """Check the health of the service and return document count."""
