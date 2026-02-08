@@ -15,10 +15,10 @@ class Settings:
     OPENAI_CHAT_MODEL: str = os.getenv("OPENAI_CHAT_MODEL", "gpt-4o-mini")
     OPENAI_EMBEDDING_MODEL: str = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
     HOST: str = os.getenv("HOST", "0.0.0.0")
-    PORT: int = int(os.getenv("PORT", "8000"))
+    PORT: int = int(os.getenv("PORT", "5500"))
 
     # Admin secret for /ingest endpoint (set a strong random string)
-    ADMIN_SECRET: str = os.getenv("ADMIN_SECRET", "nexzoneo-admin-2026")
+    ADMIN_SECRET: str = os.getenv("ADMIN_SECRET", "admin123")
 
     USE_LOCAL_EMBEDDINGS: bool = os.getenv("USE_LOCAL_EMBEDDINGS", "true").lower() in ("true", "1", "yes")
 
