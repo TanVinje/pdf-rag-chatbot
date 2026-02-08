@@ -171,6 +171,76 @@ class VectorStore:
         """Return the number of documents in the vector store."""
         return self._collection.count()
 
+    def delete_document(self, pdf_name: str) -> int:
+        """Delete all chunks belonging to a specific PDF.
+
+        Args:
+            pdf_name: The name of the PDF to delete.
+
+        Returns:
+            Number of chunks deleted.
+        """
+        if self._collection.count() == 0:
+            return 0
+
+        all_data = self._collection.get(include=["metadatas"])
+        ids_to_delete = [
+            doc_id
+            for doc_id, meta in zip(all_data["ids"], all_data["metadatas"])
+            if meta["pdf_name"] == pdf_name
+        ]
+
+        if not ids_to_delete:
+            return 0
+
+        self._collection.delete(ids=ids_to_delete)
+        logger.info(f"Deleted {len(ids_to_delete)} chunks for PDF '{pdf_name}'.")
+        return len(ids_to_delete)
+
+    def rename_document(self, old_name: str, new_name: str) -> int:
+        """Rename a PDF by updating the pdf_name metadata on all its chunks.
+
+        Args:
+            old_name: Current PDF name.
+            new_name: New PDF name.
+
+        Returns:
+            Number of chunks updated.
+        """
+        if self._collection.count() == 0:
+            return 0
+
+        all_data = self._collection.get(include=["metadatas", "documents"])
+        target_indices = [
+            i for i, meta in enumerate(all_data["metadatas"])
+            if meta["pdf_name"] == old_name
+        ]
+
+        if not target_indices:
+            return 0
+
+        # ChromaDB doesn't support metadata-only updates easily,
+        # so we delete and re-add with updated metadata and new IDs.
+        old_ids = [all_data["ids"][i] for i in target_indices]
+        self._collection.delete(ids=old_ids)
+
+        new_ids = []
+        new_docs = []
+        new_metas = []
+        for i in target_indices:
+            meta = all_data["metadatas"][i]
+            new_ids.append(f"{new_name}_{meta['chunk_id']}")
+            new_docs.append(all_data["documents"][i])
+            new_metas.append({
+                "pdf_name": new_name,
+                "page_number": meta["page_number"],
+                "chunk_id": meta["chunk_id"],
+            })
+
+        self._collection.add(ids=new_ids, documents=new_docs, metadatas=new_metas)
+        logger.info(f"Renamed PDF '{old_name}' -> '{new_name}' ({len(target_indices)} chunks).")
+        return len(target_indices)
+
     def list_documents(self) -> list[dict]:
         """List all unique PDFs in the vector store with chunk counts."""
         if self._collection.count() == 0:

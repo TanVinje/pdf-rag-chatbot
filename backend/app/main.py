@@ -189,6 +189,41 @@ async def list_documents(authorization: str | None = Header(default=None)):
     return {"documents": docs}
 
 
+@app.delete("/documents/{pdf_name}")
+async def delete_document(
+    pdf_name: str,
+    authorization: str | None = Header(default=None),
+):
+    """[ADMIN ONLY] Delete a specific PDF and all its chunks from the knowledge base."""
+    _verify_admin(authorization)
+    if not vector_store:
+        raise HTTPException(status_code=500, detail="Vector store not initialized.")
+    deleted = vector_store.delete_document(pdf_name)
+    if deleted == 0:
+        raise HTTPException(status_code=404, detail=f"Document '{pdf_name}' not found.")
+    logger.info(f"Admin deleted document '{pdf_name}' ({deleted} chunks).")
+    return {"message": f"Deleted '{pdf_name}' ({deleted} chunks).", "chunks_deleted": deleted}
+
+
+@app.patch("/documents/{pdf_name}")
+async def rename_document(
+    pdf_name: str,
+    new_name: str,
+    authorization: str | None = Header(default=None),
+):
+    """[ADMIN ONLY] Rename a PDF in the knowledge base."""
+    _verify_admin(authorization)
+    if not new_name or not new_name.strip():
+        raise HTTPException(status_code=400, detail="New name cannot be empty.")
+    if not vector_store:
+        raise HTTPException(status_code=500, detail="Vector store not initialized.")
+    updated = vector_store.rename_document(pdf_name, new_name.strip())
+    if updated == 0:
+        raise HTTPException(status_code=404, detail=f"Document '{pdf_name}' not found.")
+    logger.info(f"Admin renamed document '{pdf_name}' -> '{new_name.strip()}'.")
+    return {"message": f"Renamed to '{new_name.strip()}' ({updated} chunks).", "chunks_updated": updated}
+
+
 @app.get("/stats")
 async def get_stats(authorization: str | None = Header(default=None)):
     """[ADMIN ONLY] Get chatbot statistics."""

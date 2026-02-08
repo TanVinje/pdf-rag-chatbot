@@ -245,6 +245,22 @@
     }
     .file-queue-item .file-remove:hover { color: var(--danger); background: var(--danger-bg); }
 
+    /* ===== DOC ACTIONS ===== */
+    .doc-actions { display: flex; gap: 6px; }
+    .doc-action-btn {
+      background: none; border: none; cursor: pointer; padding: 6px;
+      border-radius: 6px; transition: all var(--transition); display: flex;
+      align-items: center; justify-content: center; color: var(--text-muted);
+    }
+    .doc-action-btn:hover { color: var(--text); background: var(--bg-card-hover); }
+    .doc-action-btn.edit:hover { color: var(--brand); background: var(--brand-glow); }
+    .doc-action-btn.delete:hover { color: var(--danger); background: var(--danger-bg); }
+    .doc-rename-input {
+      padding: 4px 8px; background: var(--bg-input); border: 1px solid var(--brand);
+      border-radius: 6px; color: var(--text); font-size: 13px; font-weight: 500;
+      outline: none; width: 220px;
+    }
+
     @media (max-width: 768px) {
       .sidebar { display: none; }
       .main-content { margin-left: 0; padding: 16px; }
@@ -509,13 +525,94 @@
           body.innerHTML = '<div class="empty-state"><p>No documents uploaded yet.</p></div>';
           return;
         }
-        let html = '<div class="table-wrapper"><table><thead><tr><th>PDF Name</th><th>Pages</th><th>Chunks</th></tr></thead><tbody>';
+        let html = '<div class="table-wrapper"><table><thead><tr><th>PDF Name</th><th>Pages</th><th>Chunks</th><th style="width:100px;">Actions</th></tr></thead><tbody>';
         for (const doc of data.documents) {
-          html += `<tr><td style="font-weight:500;"><span style="display:inline-flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>${esc(doc.pdf_name)}</span></td><td>${doc.pages}</td><td><span class="badge badge-blue">${doc.chunks}</span></td></tr>`;
+          const safeName = esc(doc.pdf_name);
+          const encodedName = encodeURIComponent(doc.pdf_name);
+          html += `<tr id="doc-row-${encodedName}">
+            <td style="font-weight:500;">
+              <span id="doc-name-${encodedName}" style="display:inline-flex;align-items:center;gap:6px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                ${safeName}
+              </span>
+            </td>
+            <td>${doc.pages}</td>
+            <td><span class="badge badge-blue">${doc.chunks}</span></td>
+            <td>
+              <div class="doc-actions">
+                <button class="doc-action-btn edit" onclick="startRenameDoc('${encodedName}')" title="Rename">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="doc-action-btn delete" onclick="deleteDoc('${encodedName}')" title="Delete">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>`;
         }
         html += "</tbody></table></div>";
         body.innerHTML = html;
       } catch { toast("Failed to load documents", "error"); }
+    }
+
+    // === DOC DELETE ===
+    async function deleteDoc(encodedName) {
+      const pdfName = decodeURIComponent(encodedName);
+      if (!confirm(`Delete "${pdfName}" and all its chunks from the knowledge base?`)) return;
+      try {
+        const resp = await apiFetch(`/documents/${encodedName}`, { method: "DELETE" });
+        if (resp.ok) {
+          const data = await resp.json();
+          toast(data.message, "success");
+          loadAllData();
+        } else {
+          const err = await resp.json().catch(() => ({}));
+          toast(err.detail || "Failed to delete document.", "error");
+        }
+      } catch { toast("Failed to delete document.", "error"); }
+    }
+
+    // === DOC RENAME ===
+    function startRenameDoc(encodedName) {
+      const pdfName = decodeURIComponent(encodedName);
+      const nameEl = document.getElementById(`doc-name-${encodedName}`);
+      if (!nameEl) return;
+
+      const currentName = pdfName;
+      nameEl.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <input class="doc-rename-input" id="rename-input-${encodedName}" value="${esc(currentName)}" />
+        <button class="btn btn-xs btn-primary" onclick="confirmRename('${encodedName}')">Save</button>
+        <button class="btn btn-xs btn-outline" onclick="loadDocuments()">Cancel</button>
+      `;
+
+      const input = document.getElementById(`rename-input-${encodedName}`);
+      input.focus();
+      input.select();
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") confirmRename(encodedName);
+        if (e.key === "Escape") loadDocuments();
+      });
+    }
+
+    async function confirmRename(encodedName) {
+      const pdfName = decodeURIComponent(encodedName);
+      const input = document.getElementById(`rename-input-${encodedName}`);
+      if (!input) return;
+      const newName = input.value.trim();
+      if (!newName || newName === pdfName) { loadDocuments(); return; }
+
+      try {
+        const resp = await apiFetch(`/documents/${encodedName}?new_name=${encodeURIComponent(newName)}`, { method: "PATCH" });
+        if (resp.ok) {
+          const data = await resp.json();
+          toast(data.message, "success");
+          loadAllData();
+        } else {
+          const err = await resp.json().catch(() => ({}));
+          toast(err.detail || "Failed to rename document.", "error");
+        }
+      } catch { toast("Failed to rename document.", "error"); }
     }
 
     // === LOGS ===
