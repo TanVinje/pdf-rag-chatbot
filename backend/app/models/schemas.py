@@ -1,8 +1,14 @@
 from pydantic import BaseModel
 
 
+class MessageEntry(BaseModel):
+    role: str  # "user" or "assistant"
+    content: str
+
+
 class ChatRequest(BaseModel):
     question: str
+    history: list[MessageEntry] = []  # conversation history for context
 
 
 class Citation(BaseModel):

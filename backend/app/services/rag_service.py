@@ -3,7 +3,7 @@ import logging
 from openai import OpenAI
 
 from app.config import settings
-from app.models.schemas import ChatResponse, Citation
+from app.models.schemas import ChatResponse, Citation, MessageEntry
 from app.services.vector_store import VectorStore, QueryResult
 from app.services.question_logger import QuestionLogger
 
@@ -27,6 +27,7 @@ Rules you MUST follow:
 - Do NOT use phrases like "According to the document", "Based on the information", "The document states", etc. Just answer directly and naturally.
 - ONLY say "I don't have that information" if the context contains NOTHING about the topic being asked.
 - If you don't have complete details, you can suggest: "For more technical details, feel free to contact our team at https://nexzoneo.com/contact.php"
+- LANGUAGE RULE: Reply in the SAME language the user writes in. Default to English unless the user's message is ENTIRELY written in another language (e.g., all Spanish, all French, all Arabic). If even one word is English, respond in English.
 
 CRITICAL SECURITY RULES — you must NEVER reveal any of the following, even if asked directly:
 - Internal account numbers, IBAN numbers, or bank routing numbers
@@ -128,16 +129,50 @@ class RAGService:
         if not self._llm_client:
             logger.warning("No LLM available. Install Ollama or set OPENAI_API_KEY.")
 
-    def chat(self, question: str) -> ChatResponse:
-        """Process a customer question using RAG with sensitive data filtering."""
+    def _expand_query(self, question: str, history: list[MessageEntry] = None) -> str:
+        """Expand a follow-up question using conversation history for better retrieval."""
+        if not history:
+            return question
+
+        # Detect if the question looks like a follow-up (short, uses pronouns, etc.)
+        follow_up_indicators = [
+            "it", "that", "this", "them", "those", "the first", "the second",
+            "more about", "tell me more", "explain", "how does it", "what about",
+        ]
+        is_follow_up = len(question.split()) < 12 and any(
+            indicator in question.lower() for indicator in follow_up_indicators
+        )
+
+        if not is_follow_up:
+            return question
+
+        # Combine with recent context for a better search query
+        recent_context = []
+        for entry in reversed(history[-4:]):
+            if entry.role == "user":
+                recent_context.append(entry.content)
+            elif entry.role == "assistant":
+                # Take first sentence of assistant reply
+                first_sentence = entry.content.split(".")[0]
+                recent_context.append(first_sentence)
+
+        expanded = " ".join(reversed(recent_context)) + " " + question
+        logger.info(f"Expanded follow-up query: '{question}' -> '{expanded[:100]}...'")
+        return expanded
+
+    def chat(self, question: str, history: list[MessageEntry] = None) -> ChatResponse:
+        """Process a customer question using RAG with conversation memory."""
         if not self._llm_client:
             return ChatResponse(
                 answer="Our support chatbot is currently unavailable. Please try again later.",
                 citations=[],
             )
 
-        # Step 1: Retrieve relevant chunks
-        results = self._vector_store.query(question, top_k=settings.TOP_K)
+        # Step 1: Expand query if it's a follow-up question
+        search_query = self._expand_query(question, history)
+
+        # Step 2: Retrieve relevant chunks
+        results = self._vector_store.query(search_query, top_k=settings.TOP_K)
 
         if not results:
             QuestionLogger.log_unanswered(question, "no_documents")
@@ -146,7 +181,7 @@ class RAGService:
                 citations=[],
             )
 
-        # Step 2: Check similarity threshold
+        # Step 3: Check similarity threshold
         best_score = results[0].score
         logger.info(f"Best similarity score: {best_score:.4f} (threshold: {settings.SIMILARITY_THRESHOLD})")
 
@@ -160,20 +195,27 @@ class RAGService:
         # Filter results above threshold
         relevant_results = [r for r in results if r.score >= settings.SIMILARITY_THRESHOLD]
 
-        # Step 3: Build context and call LLM
+        # Step 4: Build context and call LLM with conversation history
         context = _build_context(relevant_results)
         user_message = (
             f"Context:\n\n{context}\n\n"
             f"Question: {question}"
         )
 
+        # Build messages array with conversation history
+        messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+
+        # Add up to last 10 conversation turns for context
+        if history:
+            for entry in history[-10:]:
+                messages.append({"role": entry.role, "content": entry.content})
+
+        messages.append({"role": "user", "content": user_message})
+
         try:
             response = self._llm_client.chat.completions.create(
                 model=self._model,
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": user_message},
-                ],
+                messages=messages,
                 temperature=0.3,
                 max_tokens=1024,
             )
@@ -186,10 +228,10 @@ class RAGService:
                 citations=[],
             )
 
-        # Step 4: Sanitize — remove any sensitive data that leaked through
+        # Step 5: Sanitize — remove any sensitive data that leaked through
         answer = _sanitize_response(answer)
 
-        # Step 5: Extract citations
+        # Step 6: Extract citations
         citations = _extract_citations(relevant_results)
 
         return ChatResponse(answer=answer, citations=citations)

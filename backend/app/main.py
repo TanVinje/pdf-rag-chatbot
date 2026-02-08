@@ -1,8 +1,11 @@
 import logging
+from pathlib import Path
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from app.config import settings
 from app.models.schemas import (
@@ -119,7 +122,7 @@ async def chat(request: ChatRequest):
     if not request.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty.")
 
-    response = rag_service.chat(request.question)
+    response = rag_service.chat(request.question, history=request.history)
     return response
 
 
@@ -146,6 +149,26 @@ async def get_unanswered_logs(
     }
 
 
+@app.get("/stats")
+async def get_stats(authorization: str | None = Header(default=None)):
+    """[ADMIN ONLY] Get chatbot statistics."""
+    _verify_admin(authorization)
+    doc_count = vector_store.document_count if vector_store else 0
+    logs = QuestionLogger.get_recent_logs(limit=9999)
+    total_unanswered = len(logs)
+    reasons = {}
+    for log in logs:
+        r = log.get("reason", "unknown")
+        if r.startswith("llm_error"):
+            r = "llm_error"
+        reasons[r] = reasons.get(r, 0) + 1
+    return {
+        "document_count": doc_count,
+        "total_unanswered": total_unanswered,
+        "unanswered_by_reason": reasons,
+    }
+
+
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
     """Check the health of the service and return document count."""
@@ -154,6 +177,16 @@ async def health_check():
         status="healthy",
         document_count=doc_count,
     )
+
+
+# Serve admin dashboard
+ADMIN_DIR = Path(__file__).resolve().parent.parent / "admin"
+if ADMIN_DIR.exists():
+    @app.get("/admin")
+    async def admin_dashboard():
+        return FileResponse(ADMIN_DIR / "index.html")
+
+    app.mount("/admin-static", StaticFiles(directory=str(ADMIN_DIR)), name="admin-static")
 
 
 if __name__ == "__main__":
