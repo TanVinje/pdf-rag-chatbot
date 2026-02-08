@@ -215,6 +215,36 @@
     .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--brand); border-radius: 50%; animation: spin 0.6s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ===== FILE QUEUE ===== */
+    .file-queue { margin-top: 16px; }
+    .file-queue-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .file-queue-header h4 { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .file-queue-header .file-count { font-size: 12px; color: var(--text-muted); font-weight: 400; }
+    .file-queue-actions { display: flex; gap: 8px; }
+    .file-queue-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .file-queue-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      transition: all var(--transition);
+    }
+    .file-queue-item:hover { border-color: var(--border-light); }
+    .file-queue-item .file-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--danger-bg); color: var(--danger);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .file-queue-item .file-info { flex: 1; min-width: 0; }
+    .file-queue-item .file-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-queue-item .file-size { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+    .file-queue-item .file-remove {
+      background: none; border: none; color: var(--text-muted); cursor: pointer;
+      padding: 6px; border-radius: 6px; transition: all var(--transition); display: flex;
+    }
+    .file-queue-item .file-remove:hover { color: var(--danger); background: var(--danger-bg); }
+
     @media (max-width: 768px) {
       .sidebar { display: none; }
       .main-content { margin-left: 0; padding: 16px; }
@@ -339,6 +369,22 @@
             <h4>Drop PDF files here</h4><p>or click to browse your files</p>
             <input type="file" id="file-input" accept=".pdf" multiple hidden />
           </div>
+          <!-- File Queue (shown after selecting files) -->
+          <div class="file-queue" id="file-queue" style="display:none;">
+            <div class="file-queue-header">
+              <h4>Selected Files <span class="file-count" id="file-queue-count"></span></h4>
+              <div class="file-queue-actions">
+                <button class="btn btn-sm btn-outline" id="add-more-btn">Add More</button>
+                <button class="btn btn-sm btn-outline" id="clear-queue-btn" style="color:var(--danger);border-color:rgba(239,68,68,0.3);">Clear All</button>
+              </div>
+            </div>
+            <div class="file-queue-list" id="file-queue-list"></div>
+            <button class="btn btn-primary" id="upload-queue-btn" style="width:100%;justify-content:center;padding:12px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload & Process
+            </button>
+          </div>
+
           <div id="upload-progress" style="margin-top:16px;display:none;">
             <div style="display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:13px;">
               <div class="spinner"></div><span>Uploading and processing PDFs...</span>
@@ -675,24 +721,110 @@
     const uploadZone = document.getElementById("upload-zone");
     const fileInput = document.getElementById("file-input");
     const uploadProgress = document.getElementById("upload-progress");
+    const fileQueue = document.getElementById("file-queue");
+    const fileQueueList = document.getElementById("file-queue-list");
+    const fileQueueCount = document.getElementById("file-queue-count");
+    const addMoreBtn = document.getElementById("add-more-btn");
+    const clearQueueBtn = document.getElementById("clear-queue-btn");
+    const uploadQueueBtn = document.getElementById("upload-queue-btn");
+
+    // Hidden file input for "Add More"
+    const addMoreInput = document.createElement("input");
+    addMoreInput.type = "file"; addMoreInput.accept = ".pdf"; addMoreInput.multiple = true; addMoreInput.hidden = true;
+    document.body.appendChild(addMoreInput);
+
+    let queuedFiles = []; // Array of File objects
+
     uploadZone.addEventListener("click", () => fileInput.click());
     uploadZone.addEventListener("dragover", (e) => { e.preventDefault(); uploadZone.classList.add("dragover"); });
     uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("dragover"));
-    uploadZone.addEventListener("drop", (e) => { e.preventDefault(); uploadZone.classList.remove("dragover"); if (e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files); });
-    fileInput.addEventListener("change", () => { if (fileInput.files.length) uploadFiles(fileInput.files); });
+    uploadZone.addEventListener("drop", (e) => { e.preventDefault(); uploadZone.classList.remove("dragover"); if (e.dataTransfer.files.length) addFilesToQueue(e.dataTransfer.files); });
+    fileInput.addEventListener("change", () => { if (fileInput.files.length) addFilesToQueue(fileInput.files); fileInput.value = ""; });
+    addMoreBtn.addEventListener("click", () => addMoreInput.click());
+    addMoreInput.addEventListener("change", () => { if (addMoreInput.files.length) addFilesToQueue(addMoreInput.files); addMoreInput.value = ""; });
+    clearQueueBtn.addEventListener("click", () => { queuedFiles = []; renderFileQueue(); });
+    uploadQueueBtn.addEventListener("click", () => uploadQueuedFiles());
 
-    async function uploadFiles(files) {
+    function addFilesToQueue(files) {
+      let skipped = 0;
+      for (const f of files) {
+        if (!f.name.toLowerCase().endsWith(".pdf")) { skipped++; continue; }
+        // Avoid duplicates by name+size
+        const exists = queuedFiles.some(q => q.name === f.name && q.size === f.size);
+        if (!exists) queuedFiles.push(f);
+      }
+      if (skipped > 0) toast(`Skipped ${skipped} non-PDF file(s).`, "error");
+      renderFileQueue();
+    }
+
+    function removeFromQueue(index) {
+      queuedFiles.splice(index, 1);
+      renderFileQueue();
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + " B";
+      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+      return (bytes / 1048576).toFixed(1) + " MB";
+    }
+
+    function renderFileQueue() {
+      if (queuedFiles.length === 0) {
+        fileQueue.style.display = "none";
+        uploadZone.style.display = "";
+        return;
+      }
+
+      uploadZone.style.display = "none";
+      fileQueue.style.display = "";
+      fileQueueCount.textContent = `(${queuedFiles.length} file${queuedFiles.length !== 1 ? "s" : ""})`;
+
+      let html = "";
+      queuedFiles.forEach((file, i) => {
+        html += `<div class="file-queue-item">
+          <div class="file-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+          </div>
+          <div class="file-info">
+            <div class="file-name" title="${esc(file.name)}">${esc(file.name)}</div>
+            <div class="file-size">${formatFileSize(file.size)}</div>
+          </div>
+          <button class="file-remove" onclick="removeFromQueue(${i})" title="Remove file">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>`;
+      });
+      fileQueueList.innerHTML = html;
+    }
+
+    async function uploadQueuedFiles() {
+      if (queuedFiles.length === 0) return;
       const formData = new FormData();
-      let count = 0;
-      for (const f of files) { if (f.name.toLowerCase().endsWith(".pdf")) { formData.append("files", f); count++; } }
-      if (!count) { toast("Please select PDF files only.", "error"); return; }
-      uploadProgress.style.display = "block"; uploadZone.style.display = "none";
+      for (const f of queuedFiles) formData.append("files", f);
+
+      fileQueue.style.display = "none";
+      uploadProgress.style.display = "block";
+
       try {
         const resp = await apiFetch("/ingest", { method: "POST", body: formData });
-        if (resp.ok) { const data = await resp.json(); toast(`Uploaded ${data.files_processed} file(s) — ${data.total_chunks} chunks indexed`, "success"); loadAllData(); }
-        else { const err = await resp.json().catch(() => ({})); toast(err.detail || "Upload failed.", "error"); }
+        if (resp.ok) {
+          const data = await resp.json();
+          toast(`Uploaded ${data.files_processed} file(s) — ${data.total_chunks} chunks indexed`, "success");
+          loadAllData();
+        } else {
+          const err = await resp.json().catch(() => ({}));
+          toast(err.detail || "Upload failed.", "error");
+        }
       } catch { toast("Upload failed.", "error"); }
-      uploadProgress.style.display = "none"; uploadZone.style.display = ""; fileInput.value = "";
+
+      queuedFiles = [];
+      uploadProgress.style.display = "none";
+      uploadZone.style.display = "";
     }
 
     // === CLEAR KB ===
