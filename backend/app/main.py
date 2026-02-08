@@ -138,15 +138,47 @@ async def clear_knowledge_base(authorization: str | None = Header(default=None))
 @app.get("/logs")
 async def get_unanswered_logs(
     authorization: str | None = Header(default=None),
-    limit: int = 50,
+    limit: int = 200,
 ):
-    """[ADMIN ONLY] Get recent unanswered questions log."""
+    """[ADMIN ONLY] Get unanswered questions log (excludes handled)."""
     _verify_admin(authorization)
     logs = QuestionLogger.get_recent_logs(limit=limit)
     return {
         "total": len(logs),
         "logs": logs,
     }
+
+
+@app.patch("/logs/{log_id}")
+async def update_log_status(
+    log_id: str,
+    authorization: str | None = Header(default=None),
+    status: str | None = None,
+):
+    """[ADMIN ONLY] Update the status of an unanswered question."""
+    _verify_admin(authorization)
+    if not status:
+        raise HTTPException(status_code=400, detail="Status is required.")
+    if status not in ("new", "reviewing", "handled"):
+        raise HTTPException(status_code=400, detail="Invalid status. Use: new, reviewing, handled")
+
+    found = QuestionLogger.update_status(log_id, status)
+    if not found:
+        raise HTTPException(status_code=404, detail="Log entry not found.")
+    return {"message": f"Status updated to '{status}'.", "removed": status == "handled"}
+
+
+@app.delete("/logs/{log_id}")
+async def delete_log_entry(
+    log_id: str,
+    authorization: str | None = Header(default=None),
+):
+    """[ADMIN ONLY] Delete a specific log entry."""
+    _verify_admin(authorization)
+    found = QuestionLogger.delete_log(log_id)
+    if not found:
+        raise HTTPException(status_code=404, detail="Log entry not found.")
+    return {"message": "Log entry deleted."}
 
 
 @app.get("/documents")

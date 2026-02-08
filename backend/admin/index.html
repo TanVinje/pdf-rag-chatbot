@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nexzoneo Admin</title>
   <style>
-    /* ========== RESET & VARIABLES ========== */
     :root {
       --bg: #0b1120;
       --bg-card: #151d30;
@@ -25,6 +24,10 @@
       --danger: #ef4444;
       --danger-bg: rgba(239, 68, 68, 0.1);
       --danger-hover: #dc2626;
+      --purple: #8b5cf6;
+      --purple-bg: rgba(139, 92, 246, 0.1);
+      --pink: #ec4899;
+      --pink-bg: rgba(236, 72, 153, 0.1);
       --border: #1e293b;
       --border-light: #2a3a52;
       --radius: 12px;
@@ -32,442 +35,186 @@
       --shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
       --transition: 0.2s ease;
     }
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      line-height: 1.5;
+      background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.5;
     }
 
-    /* ========== LOGIN PAGE ========== */
-    .login-page {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 24px;
-    }
-
-    .login-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 48px 40px;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: var(--shadow);
-      text-align: center;
-    }
-
-    .login-logo {
-      width: 56px;
-      height: 56px;
-      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-      border-radius: 14px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-
+    /* ===== LOGIN ===== */
+    .login-page { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+    .login-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 48px 40px; width: 100%; max-width: 420px; box-shadow: var(--shadow); text-align: center; }
+    .login-logo { width: 56px; height: 56px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px; }
     .login-logo svg { color: #fff; }
-
-    .login-card h1 {
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
+    .login-card h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
     .login-card h1 span { color: var(--brand); }
-
-    .login-subtitle {
-      color: var(--text-muted);
-      font-size: 13px;
-      margin-bottom: 28px;
-    }
-
-    .login-input {
-      width: 100%;
-      padding: 12px 16px;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      color: var(--text);
-      font-size: 14px;
-      outline: none;
-      transition: border-color var(--transition);
-      margin-bottom: 12px;
-    }
-
+    .login-subtitle { color: var(--text-muted); font-size: 13px; margin-bottom: 28px; }
+    .login-input { width: 100%; padding: 12px 16px; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; outline: none; transition: border-color var(--transition); margin-bottom: 12px; }
     .login-input:focus { border-color: var(--brand); }
-
-    .login-btn {
-      width: 100%;
-      padding: 12px;
-      background: var(--brand);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius-sm);
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background var(--transition);
-    }
-
+    .login-btn { width: 100%; padding: 12px; background: var(--brand); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; transition: background var(--transition); }
     .login-btn:hover { background: var(--brand-hover); }
+    .login-error { color: var(--danger); font-size: 13px; margin-top: 12px; display: none; }
 
-    .login-error {
-      color: var(--danger);
-      font-size: 13px;
-      margin-top: 12px;
-      display: none;
-    }
-
-    /* ========== DASHBOARD LAYOUT ========== */
+    /* ===== LAYOUT ===== */
     .dashboard { display: none; }
     .dashboard.visible { display: flex; min-height: 100vh; }
-
-    /* Sidebar */
-    .sidebar {
-      width: 240px;
-      background: var(--bg-sidebar);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      z-index: 10;
-    }
-
-    .sidebar-header {
-      padding: 20px 20px 16px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .sidebar-header h2 {
-      font-size: 15px;
-      font-weight: 700;
-    }
-
+    .sidebar { width: 240px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 10; }
+    .sidebar-header { padding: 20px 20px 16px; border-bottom: 1px solid var(--border); }
+    .sidebar-header h2 { font-size: 15px; font-weight: 700; }
     .sidebar-header h2 span { color: var(--brand); }
-
-    .sidebar-header p {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
-
-    .sidebar-nav {
-      flex: 1;
-      padding: 12px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-light);
-      cursor: pointer;
-      transition: all var(--transition);
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
-    }
-
+    .sidebar-header p { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .sidebar-nav { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; color: var(--text-light); cursor: pointer; transition: all var(--transition); border: none; background: none; width: 100%; text-align: left; }
     .nav-item:hover { background: var(--bg-card); color: var(--text); }
     .nav-item.active { background: var(--brand-glow); color: var(--brand); }
     .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
-
-    .sidebar-footer {
-      padding: 16px 20px;
-      border-top: 1px solid var(--border);
-    }
-
-    .logout-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: var(--radius-sm);
-      font-size: 12px;
-      color: var(--text-muted);
-      cursor: pointer;
-      border: none;
-      background: none;
-      width: 100%;
-      transition: all var(--transition);
-    }
-
+    .nav-badge { margin-left: auto; background: var(--danger); color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
+    .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
+    .logout-btn { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: var(--radius-sm); font-size: 12px; color: var(--text-muted); cursor: pointer; border: none; background: none; width: 100%; transition: all var(--transition); }
     .logout-btn:hover { color: var(--danger); background: var(--danger-bg); }
-
-    /* Main content */
-    .main-content {
-      flex: 1;
-      margin-left: 240px;
-      padding: 28px 32px;
-      min-height: 100vh;
-    }
-
-    .page-header {
-      margin-bottom: 24px;
-    }
-
-    .page-header h2 {
-      font-size: 20px;
-      font-weight: 700;
-    }
-
-    .page-header p {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
-
-    /* ========== PAGES (show/hide) ========== */
+    .main-content { flex: 1; margin-left: 240px; padding: 28px 32px; min-height: 100vh; }
+    .page-header { margin-bottom: 24px; }
+    .page-header h2 { font-size: 20px; font-weight: 700; }
+    .page-header p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
     .page { display: none; }
     .page.active { display: block; }
 
-    /* ========== STAT CARDS ========== */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-
-    .stat-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      transition: border-color var(--transition);
-    }
-
+    /* ===== STATS ===== */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: border-color var(--transition); }
     .stat-card:hover { border-color: var(--border-light); }
-
-    .stat-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 12px;
-    }
-
+    .stat-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
     .stat-icon.blue { background: var(--brand-glow); color: var(--brand); }
     .stat-icon.green { background: var(--success-bg); color: var(--success); }
     .stat-icon.yellow { background: var(--warning-bg); color: var(--warning); }
     .stat-icon.red { background: var(--danger-bg); color: var(--danger); }
+    .stat-value { font-size: 28px; font-weight: 700; line-height: 1.1; }
+    .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
 
-    .stat-value {
-      font-size: 28px;
-      font-weight: 700;
-      line-height: 1.1;
-    }
-
-    .stat-label {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-top: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    /* ========== CARDS ========== */
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      margin-bottom: 20px;
-      overflow: hidden;
-    }
-
-    .card-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .card-header h3 {
-      font-size: 14px;
-      font-weight: 600;
-    }
-
+    /* ===== CARDS ===== */
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 20px; overflow: hidden; }
+    .card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .card-header h3 { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
     .card-body { padding: 20px; }
 
-    /* ========== BUTTONS ========== */
-    .btn {
-      padding: 8px 16px;
-      border: none;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all var(--transition);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: #fff;
-    }
-
+    /* ===== BUTTONS ===== */
+    .btn { padding: 8px 16px; border: none; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all var(--transition); display: inline-flex; align-items: center; gap: 6px; color: #fff; }
     .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-xs { padding: 4px 8px; font-size: 11px; }
     .btn-primary { background: var(--brand); }
     .btn-primary:hover { background: var(--brand-hover); }
     .btn-danger { background: var(--danger); }
     .btn-danger:hover { background: var(--danger-hover); }
-    .btn-outline {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-light);
-    }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-light); }
     .btn-outline:hover { border-color: var(--text-light); color: var(--text); }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* ========== UPLOAD ZONE ========== */
-    .upload-zone {
-      border: 2px dashed var(--border-light);
-      border-radius: var(--radius);
-      padding: 40px 24px;
-      text-align: center;
-      cursor: pointer;
-      transition: all var(--transition);
-    }
-
-    .upload-zone:hover, .upload-zone.dragover {
-      border-color: var(--brand);
-      background: var(--brand-glow);
-    }
-
-    .upload-icon {
-      width: 48px;
-      height: 48px;
-      background: var(--brand-glow);
-      border-radius: 12px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--brand);
-      margin-bottom: 12px;
-    }
-
+    /* ===== UPLOAD ===== */
+    .upload-zone { border: 2px dashed var(--border-light); border-radius: var(--radius); padding: 40px 24px; text-align: center; cursor: pointer; transition: all var(--transition); }
+    .upload-zone:hover, .upload-zone.dragover { border-color: var(--brand); background: var(--brand-glow); }
+    .upload-icon { width: 48px; height: 48px; background: var(--brand-glow); border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; color: var(--brand); margin-bottom: 12px; }
     .upload-zone h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
     .upload-zone p { font-size: 12px; color: var(--text-muted); }
 
-    /* ========== TABLE ========== */
+    /* ===== TABLE ===== */
     .table-wrapper { overflow-x: auto; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-
-    th {
-      text-align: left;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
-      white-space: nowrap;
-    }
-
-    td {
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
-      vertical-align: middle;
-    }
-
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); padding: 12px 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: var(--bg-card-hover); }
 
-    /* ========== BADGES ========== */
-    .badge {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-
+    /* ===== BADGES ===== */
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
     .badge-blue { background: var(--brand-glow); color: var(--brand); }
     .badge-yellow { background: var(--warning-bg); color: var(--warning); }
     .badge-red { background: var(--danger-bg); color: var(--danger); }
-    .badge-pink { background: rgba(236, 72, 153, 0.1); color: #ec4899; }
+    .badge-pink { background: var(--pink-bg); color: var(--pink); }
+    .badge-green { background: var(--success-bg); color: var(--success); }
+    .badge-purple { background: var(--purple-bg); color: var(--purple); }
 
-    /* ========== EMPTY STATE ========== */
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--text-muted);
+    /* ===== STATUS SELECT ===== */
+    .status-select {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      cursor: pointer;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      background-repeat: no-repeat;
+      background-position: right 6px center;
+      background-size: 10px;
+      padding-right: 22px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2394a3b8' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
     }
+    .status-select.status-new { background-color: var(--danger-bg); color: var(--danger); border-color: rgba(239,68,68,0.3); }
+    .status-select.status-reviewing { background-color: var(--warning-bg); color: var(--warning); border-color: rgba(245,158,11,0.3); }
+    .status-select option { background: var(--bg-card); color: var(--text); }
 
+    /* ===== CATEGORY SECTION ===== */
+    .category-section { margin-bottom: 24px; }
+    .category-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px;
+      background: var(--bg-input);
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .category-header:hover { background: var(--border); }
+    .category-header h4 { font-size: 13px; font-weight: 600; flex: 1; }
+    .category-count { font-size: 12px; font-weight: 600; }
+    .category-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .category-icon.cat-similarity { background: var(--warning-bg); color: var(--warning); }
+    .category-icon.cat-nodocs { background: var(--danger-bg); color: var(--danger); }
+    .category-icon.cat-error { background: var(--pink-bg); color: var(--pink); }
+    .category-body { padding-left: 0; }
+    .category-body.collapsed { display: none; }
+
+    /* ===== QUESTION ROW ===== */
+    .q-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 6px;
+      transition: all 0.3s ease;
+    }
+    .q-row:hover { border-color: var(--border-light); background: var(--bg-card-hover); }
+    .q-row.removing { opacity: 0; transform: translateX(20px); height: 0; padding: 0; margin: 0; overflow: hidden; }
+    .q-text { flex: 1; font-size: 13px; }
+    .q-time { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+    .q-score { font-size: 11px; font-family: monospace; color: var(--text-muted); min-width: 44px; text-align: right; }
+    .q-actions { display: flex; align-items: center; gap: 6px; }
+    .q-delete { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; border-radius: 4px; transition: all var(--transition); display: flex; }
+    .q-delete:hover { color: var(--danger); background: var(--danger-bg); }
+
+    /* ===== FILTER TABS ===== */
+    .filter-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+    .filter-tab { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; border: 1px solid var(--border); background: none; color: var(--text-muted); cursor: pointer; transition: all var(--transition); }
+    .filter-tab:hover { border-color: var(--text-light); color: var(--text); }
+    .filter-tab.active { background: var(--brand-glow); border-color: var(--brand); color: var(--brand); }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
     .empty-state svg { margin-bottom: 12px; opacity: 0.4; }
     .empty-state p { font-size: 13px; }
 
-    /* ========== TOAST ========== */
-    .toast-container {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 999;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .toast {
-      padding: 12px 20px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      font-weight: 500;
-      color: #fff;
-      animation: slideIn 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-
+    /* ===== TOAST ===== */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { padding: 12px 20px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; color: #fff; animation: slideIn 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
     .toast.success { background: var(--success); }
     .toast.error { background: var(--danger); }
     .toast.info { background: var(--brand); }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(20px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    /* ========== LOADING SPINNER ========== */
-    .spinner {
-      display: inline-block;
-      width: 18px;
-      height: 18px;
-      border: 2px solid var(--border);
-      border-top-color: var(--brand);
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-    }
-
+    .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--brand); border-radius: 50%; animation: spin 0.6s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ========== RESPONSIVE ========== */
     @media (max-width: 768px) {
       .sidebar { display: none; }
       .main-content { margin-left: 0; padding: 16px; }
@@ -477,7 +224,7 @@
 </head>
 <body>
 
-  <!-- ========== LOGIN PAGE ========== -->
+  <!-- LOGIN -->
   <div class="login-page" id="login-page">
     <div class="login-card">
       <div class="login-logo">
@@ -493,9 +240,8 @@
     </div>
   </div>
 
-  <!-- ========== DASHBOARD ========== -->
+  <!-- DASHBOARD -->
   <div class="dashboard" id="dashboard">
-    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-header">
         <h2><span>Nexzoneo</span> Admin</h2>
@@ -517,6 +263,7 @@
         <button class="nav-item" data-page="logs">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           Unanswered Logs
+          <span class="nav-badge" id="nav-log-count" style="display:none;">0</span>
         </button>
       </nav>
       <div class="sidebar-footer">
@@ -527,48 +274,36 @@
       </div>
     </aside>
 
-    <!-- Main Content -->
     <div class="main-content">
 
-      <!-- ===== OVERVIEW PAGE ===== -->
+      <!-- OVERVIEW -->
       <div class="page active" id="page-overview">
         <div class="page-header">
           <h2>Overview</h2>
           <p>Monitor your chatbot's knowledge base and performance</p>
         </div>
-
-        <div class="stats-grid" id="stats-grid">
+        <div class="stats-grid">
           <div class="stat-card">
-            <div class="stat-icon blue">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            </div>
+            <div class="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
             <div class="stat-value" id="stat-docs">-</div>
             <div class="stat-label">Document Chunks</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon green">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            </div>
+            <div class="stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
             <div class="stat-value" id="stat-pdfs">-</div>
             <div class="stat-label">PDF Files</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon yellow">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            </div>
+            <div class="stat-icon yellow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
             <div class="stat-value" id="stat-unanswered">-</div>
             <div class="stat-label">Unanswered Questions</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon red">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            </div>
+            <div class="stat-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
             <div class="stat-value" id="stat-reason">-</div>
             <div class="stat-label">Top Failure Reason</div>
           </div>
         </div>
-
-        <!-- Recent unanswered -->
         <div class="card">
           <div class="card-header">
             <h3>Recent Unanswered Questions</h3>
@@ -580,13 +315,9 @@
         </div>
       </div>
 
-      <!-- ===== DOCUMENTS PAGE ===== -->
+      <!-- DOCUMENTS -->
       <div class="page" id="page-documents">
-        <div class="page-header">
-          <h2>Documents</h2>
-          <p>All PDFs currently in the knowledge base</p>
-        </div>
-
+        <div class="page-header"><h2>Documents</h2><p>All PDFs currently in the knowledge base</p></div>
         <div class="card">
           <div class="card-header">
             <h3>Uploaded PDFs</h3>
@@ -595,76 +326,64 @@
               <button class="btn btn-sm btn-danger" id="clear-kb-btn">Clear All</button>
             </div>
           </div>
-          <div class="card-body" id="docs-table-body">
-            <div class="empty-state"><p>Loading...</p></div>
-          </div>
+          <div class="card-body" id="docs-table-body"><div class="empty-state"><p>Loading...</p></div></div>
         </div>
       </div>
 
-      <!-- ===== UPLOAD PAGE ===== -->
+      <!-- UPLOAD -->
       <div class="page" id="page-upload">
-        <div class="page-header">
-          <h2>Upload PDFs</h2>
-          <p>Add new documents to the chatbot's knowledge base</p>
-        </div>
-
-        <div class="card">
-          <div class="card-body">
-            <div class="upload-zone" id="upload-zone">
-              <div class="upload-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              </div>
-              <h4>Drop PDF files here</h4>
-              <p>or click to browse your files</p>
-              <input type="file" id="file-input" accept=".pdf" multiple hidden />
-            </div>
-            <div id="upload-progress" style="margin-top:16px;display:none;">
-              <div style="display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:13px;">
-                <div class="spinner"></div>
-                <span>Uploading and processing PDFs...</span>
-              </div>
+        <div class="page-header"><h2>Upload PDFs</h2><p>Add new documents to the chatbot's knowledge base</p></div>
+        <div class="card"><div class="card-body">
+          <div class="upload-zone" id="upload-zone">
+            <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+            <h4>Drop PDF files here</h4><p>or click to browse your files</p>
+            <input type="file" id="file-input" accept=".pdf" multiple hidden />
+          </div>
+          <div id="upload-progress" style="margin-top:16px;display:none;">
+            <div style="display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:13px;">
+              <div class="spinner"></div><span>Uploading and processing PDFs...</span>
             </div>
           </div>
-        </div>
+        </div></div>
       </div>
 
-      <!-- ===== LOGS PAGE ===== -->
+      <!-- LOGS -->
       <div class="page" id="page-logs">
         <div class="page-header">
           <h2>Unanswered Questions</h2>
-          <p>Questions the chatbot could not answer — use this to identify knowledge gaps</p>
+          <p>Questions grouped by category. Change status to manage them — handled questions are automatically removed.</p>
         </div>
 
-        <div class="card">
-          <div class="card-header">
-            <h3>Question Log <span class="badge badge-blue" id="log-count">0</span></h3>
-            <button class="btn btn-sm btn-outline" id="refresh-logs-btn">Refresh</button>
-          </div>
-          <div class="card-body" id="logs-table-body">
-            <div class="empty-state"><p>Loading...</p></div>
-          </div>
+        <!-- Status filter tabs -->
+        <div class="filter-tabs" id="filter-tabs">
+          <button class="filter-tab active" data-filter="all">All</button>
+          <button class="filter-tab" data-filter="new">New</button>
+          <button class="filter-tab" data-filter="reviewing">Reviewing</button>
+        </div>
+
+        <div id="logs-categorized">
+          <div class="empty-state"><p>Loading...</p></div>
         </div>
       </div>
 
-    </div><!-- /main-content -->
-  </div><!-- /dashboard -->
+    </div>
+  </div>
 
-  <!-- Toast container -->
   <div class="toast-container" id="toast-container"></div>
 
   <script>
-    // ============ CONFIG ============
     const API = window.location.origin;
     let adminToken = "";
+    let allLogs = [];
+    let currentFilter = "all";
 
-    // ============ DOM REFS ============
+    // === AUTH ===
     const loginPage = document.getElementById("login-page");
     const dashboard = document.getElementById("dashboard");
     const loginBtn = document.getElementById("login-btn");
     const secretInput = document.getElementById("admin-secret");
     const loginError = document.getElementById("login-error");
 
-    // ============ AUTH ============
     loginBtn.addEventListener("click", doLogin);
     secretInput.addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); });
 
@@ -672,19 +391,14 @@
       const secret = secretInput.value.trim();
       if (!secret) return;
       adminToken = secret;
-
       try {
         const resp = await apiFetch("/stats");
         if (resp.ok) {
           loginPage.style.display = "none";
           dashboard.classList.add("visible");
           loadAllData();
-        } else {
-          showLoginError("Invalid admin secret.");
-        }
-      } catch {
-        showLoginError("Cannot connect to backend. Is it running?");
-      }
+        } else { showLoginError("Invalid admin secret."); }
+      } catch { showLoginError("Cannot connect to backend."); }
     }
 
     function showLoginError(msg) {
@@ -700,238 +414,305 @@
       secretInput.value = "";
     });
 
-    // ============ NAVIGATION ============
-    const navItems = document.querySelectorAll(".nav-item");
-    const pages = document.querySelectorAll(".page");
-
-    navItems.forEach((item) => {
-      item.addEventListener("click", () => {
-        navigateTo(item.dataset.page);
-      });
+    // === NAV ===
+    document.querySelectorAll(".nav-item").forEach((item) => {
+      item.addEventListener("click", () => navigateTo(item.dataset.page));
     });
 
     function navigateTo(pageId) {
-      navItems.forEach((n) => n.classList.remove("active"));
-      pages.forEach((p) => p.classList.remove("active"));
-      const navBtn = document.querySelector(`.nav-item[data-page="${pageId}"]`);
-      if (navBtn) navBtn.classList.add("active");
+      document.querySelectorAll(".nav-item").forEach((n) => n.classList.remove("active"));
+      document.querySelectorAll(".page").forEach((p) => p.classList.remove("active"));
+      const btn = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+      if (btn) btn.classList.add("active");
       const page = document.getElementById(`page-${pageId}`);
       if (page) page.classList.add("active");
     }
 
-    // ============ API HELPER ============
+    // === API ===
     async function apiFetch(path, options = {}) {
       const headers = { Authorization: `Bearer ${adminToken}`, ...(options.headers || {}) };
       return fetch(`${API}${path}`, { ...options, headers });
     }
 
-    // ============ LOAD ALL DATA ============
     async function loadAllData() {
       await Promise.all([loadStats(), loadDocuments(), loadLogs()]);
     }
 
-    // ============ STATS ============
+    // === STATS ===
     async function loadStats() {
       try {
-        const [statsResp, docsResp] = await Promise.all([
-          apiFetch("/stats"),
-          apiFetch("/documents"),
-        ]);
+        const [statsResp, docsResp] = await Promise.all([apiFetch("/stats"), apiFetch("/documents")]);
         const stats = await statsResp.json();
         const docs = await docsResp.json();
-
         document.getElementById("stat-docs").textContent = stats.document_count;
         document.getElementById("stat-pdfs").textContent = docs.documents.length;
         document.getElementById("stat-unanswered").textContent = stats.total_unanswered;
-
         const reasons = stats.unanswered_by_reason || {};
         const top = Object.entries(reasons).sort((a, b) => b[1] - a[1])[0];
-        document.getElementById("stat-reason").textContent = top ? formatReason(top[0]) : "None";
-      } catch {
-        toast("Failed to load stats", "error");
-      }
+        document.getElementById("stat-reason").textContent = top ? fmtReason(top[0]) : "None";
+      } catch { toast("Failed to load stats", "error"); }
     }
 
-    // ============ DOCUMENTS ============
+    // === DOCUMENTS ===
     async function loadDocuments() {
       try {
         const resp = await apiFetch("/documents");
         const data = await resp.json();
         const body = document.getElementById("docs-table-body");
-
         if (!data.documents || data.documents.length === 0) {
-          body.innerHTML = `
-            <div class="empty-state">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              <p>No documents uploaded yet.</p>
-            </div>`;
+          body.innerHTML = '<div class="empty-state"><p>No documents uploaded yet.</p></div>';
           return;
         }
-
-        let html = `<div class="table-wrapper"><table>
-          <thead><tr><th>PDF Name</th><th>Pages</th><th>Chunks</th></tr></thead>
-          <tbody>`;
-
+        let html = '<div class="table-wrapper"><table><thead><tr><th>PDF Name</th><th>Pages</th><th>Chunks</th></tr></thead><tbody>';
         for (const doc of data.documents) {
-          html += `<tr>
-            <td style="font-weight:500;">
-              <span style="display:inline-flex;align-items:center;gap:6px;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                ${esc(doc.pdf_name)}
-              </span>
-            </td>
-            <td>${doc.pages}</td>
-            <td><span class="badge badge-blue">${doc.chunks}</span></td>
-          </tr>`;
+          html += `<tr><td style="font-weight:500;"><span style="display:inline-flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>${esc(doc.pdf_name)}</span></td><td>${doc.pages}</td><td><span class="badge badge-blue">${doc.chunks}</span></td></tr>`;
         }
-
         html += "</tbody></table></div>";
         body.innerHTML = html;
-      } catch {
-        toast("Failed to load documents", "error");
-      }
+      } catch { toast("Failed to load documents", "error"); }
     }
 
-    // ============ LOGS ============
+    // === LOGS ===
     async function loadLogs() {
       try {
-        const resp = await apiFetch("/logs?limit=200");
+        const resp = await apiFetch("/logs?limit=500");
         const data = await resp.json();
-        document.getElementById("log-count").textContent = data.total;
+        allLogs = data.logs || [];
 
-        // Full logs page
-        renderLogsTable(data.logs, "logs-table-body", 200);
+        // Update nav badge
+        const navBadge = document.getElementById("nav-log-count");
+        const newCount = allLogs.filter(l => l.status === "new").length;
+        if (newCount > 0) { navBadge.textContent = newCount; navBadge.style.display = ""; }
+        else { navBadge.style.display = "none"; }
 
-        // Recent logs on overview (last 5)
-        renderLogsTable(data.logs.slice(0, 5), "recent-logs-body", 5);
-      } catch {
-        toast("Failed to load logs", "error");
-      }
+        renderCategorizedLogs();
+        renderRecentLogs();
+      } catch { toast("Failed to load logs", "error"); }
     }
 
-    function renderLogsTable(logs, containerId, limit) {
-      const container = document.getElementById(containerId);
+    // Filter tabs
+    document.getElementById("filter-tabs").addEventListener("click", (e) => {
+      const tab = e.target.closest(".filter-tab");
+      if (!tab) return;
+      document.querySelectorAll(".filter-tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      currentFilter = tab.dataset.filter;
+      renderCategorizedLogs();
+    });
 
-      if (!logs || logs.length === 0) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            <p>No unanswered questions yet. Your knowledge base is doing great!</p>
-          </div>`;
+    function renderCategorizedLogs() {
+      const container = document.getElementById("logs-categorized");
+      let filtered = allLogs;
+      if (currentFilter !== "all") {
+        filtered = allLogs.filter(l => l.status === currentFilter);
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><p>No unanswered questions. Your knowledge base is doing great!</p></div>';
         return;
       }
 
-      let html = `<div class="table-wrapper"><table>
-        <thead><tr><th>Time</th><th>Question</th><th>Reason</th><th>Score</th></tr></thead>
-        <tbody>`;
+      // Group by reason category
+      const categories = {
+        low_similarity: { label: "Low Similarity Match", desc: "Questions that didn't match documents well enough", icon: "cat-similarity", items: [] },
+        no_documents: { label: "No Documents Found", desc: "No documents in the knowledge base when asked", icon: "cat-nodocs", items: [] },
+        llm_error: { label: "LLM Errors", desc: "The AI model failed to generate a response", icon: "cat-error", items: [] },
+      };
 
-      for (const log of logs.slice(0, limit)) {
-        const time = new Date(log.timestamp).toLocaleString();
+      for (const log of filtered) {
         const reason = log.reason.startsWith("llm_error") ? "llm_error" : log.reason;
-        const score = log.similarity_score != null ? log.similarity_score.toFixed(3) : "-";
-        const badgeClass = reason === "low_similarity" ? "badge-yellow" :
-                           reason === "no_documents" ? "badge-red" : "badge-pink";
-
-        html += `<tr>
-          <td style="white-space:nowrap;font-size:12px;color:var(--text-muted);">${time}</td>
-          <td>${esc(log.question)}</td>
-          <td><span class="badge ${badgeClass}">${formatReason(reason)}</span></td>
-          <td style="font-family:monospace;font-size:12px;">${score}</td>
-        </tr>`;
+        if (categories[reason]) {
+          categories[reason].items.push(log);
+        } else {
+          // Unknown category fallback
+          if (!categories.other) {
+            categories.other = { label: "Other", desc: "Miscellaneous failures", icon: "cat-error", items: [] };
+          }
+          categories.other.items.push(log);
+        }
       }
 
-      html += "</tbody></table></div>";
+      let html = "";
+      for (const [key, cat] of Object.entries(categories)) {
+        if (cat.items.length === 0) continue;
+
+        const newCount = cat.items.filter(i => i.status === "new").length;
+        const reviewingCount = cat.items.filter(i => i.status === "reviewing").length;
+
+        html += `<div class="category-section">
+          <div class="category-header" onclick="toggleCategory('${key}')">
+            <div class="category-icon ${cat.icon}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                ${key === "low_similarity" ? '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' :
+                  key === "no_documents" ? '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="9" y1="13" x2="15" y2="13"/>' :
+                  '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'}
+              </svg>
+            </div>
+            <h4>${cat.label} <span style="color:var(--text-muted);font-weight:400;font-size:12px;margin-left:4px;">${cat.desc}</span></h4>
+            <div style="display:flex;gap:6px;align-items:center;">
+              ${newCount > 0 ? `<span class="badge badge-red">${newCount} new</span>` : ""}
+              ${reviewingCount > 0 ? `<span class="badge badge-yellow">${reviewingCount} reviewing</span>` : ""}
+              <span class="category-count">${cat.items.length} total</span>
+            </div>
+          </div>
+          <div class="category-body" id="cat-${key}">`;
+
+        for (const log of cat.items) {
+          const time = new Date(log.timestamp).toLocaleString();
+          const score = log.similarity_score != null ? log.similarity_score.toFixed(3) : "-";
+          const statusClass = log.status === "new" ? "status-new" : "status-reviewing";
+
+          html += `<div class="q-row" id="row-${log.id}">
+            <select class="status-select ${statusClass}" onchange="changeStatus('${log.id}', this.value, this)" title="Change status">
+              <option value="new" ${log.status === "new" ? "selected" : ""}>New</option>
+              <option value="reviewing" ${log.status === "reviewing" ? "selected" : ""}>Reviewing</option>
+              <option value="handled">Handled</option>
+            </select>
+            <div class="q-text">${esc(log.question)}</div>
+            <div class="q-score">${score}</div>
+            <div class="q-time">${time}</div>
+            <div class="q-actions">
+              <button class="q-delete" onclick="deleteQuestion('${log.id}')" title="Delete">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </div>`;
+        }
+
+        html += `</div></div>`;
+      }
+
       container.innerHTML = html;
     }
 
-    // ============ UPLOAD ============
+    function renderRecentLogs() {
+      const body = document.getElementById("recent-logs-body");
+      const recent = allLogs.slice(0, 5);
+      if (recent.length === 0) {
+        body.innerHTML = '<div class="empty-state"><p>No unanswered questions yet.</p></div>';
+        return;
+      }
+      let html = '<div class="table-wrapper"><table><thead><tr><th>Status</th><th>Question</th><th>Category</th><th>Time</th></tr></thead><tbody>';
+      for (const log of recent) {
+        const time = new Date(log.timestamp).toLocaleString();
+        const reason = log.reason.startsWith("llm_error") ? "llm_error" : log.reason;
+        const statusBadge = log.status === "new" ? '<span class="badge badge-red">New</span>' : '<span class="badge badge-yellow">Reviewing</span>';
+        const catBadge = reason === "low_similarity" ? "badge-yellow" : reason === "no_documents" ? "badge-red" : "badge-pink";
+        html += `<tr><td>${statusBadge}</td><td>${esc(log.question)}</td><td><span class="badge ${catBadge}">${fmtReason(reason)}</span></td><td style="font-size:12px;color:var(--text-muted);white-space:nowrap;">${time}</td></tr>`;
+      }
+      html += "</tbody></table></div>";
+      body.innerHTML = html;
+    }
+
+    function toggleCategory(key) {
+      const body = document.getElementById(`cat-${key}`);
+      if (body) body.classList.toggle("collapsed");
+    }
+
+    // === STATUS CHANGE ===
+    async function changeStatus(logId, newStatus, selectEl) {
+      try {
+        const resp = await apiFetch(`/logs/${logId}?status=${newStatus}`, { method: "PATCH" });
+        if (resp.ok) {
+          if (newStatus === "handled") {
+            // Animate removal
+            const row = document.getElementById(`row-${logId}`);
+            if (row) {
+              row.classList.add("removing");
+              setTimeout(() => {
+                // Remove from local data and re-render
+                allLogs = allLogs.filter(l => l.id !== logId);
+                renderCategorizedLogs();
+                renderRecentLogs();
+                loadStats();
+                updateNavBadge();
+              }, 350);
+            }
+            toast("Question marked as handled and removed", "success");
+          } else {
+            // Update local data
+            const log = allLogs.find(l => l.id === logId);
+            if (log) log.status = newStatus;
+            // Update select styling
+            selectEl.className = `status-select status-${newStatus}`;
+            updateNavBadge();
+            toast(`Status changed to "${newStatus}"`, "info");
+          }
+        } else { toast("Failed to update status", "error"); }
+      } catch { toast("Failed to update status", "error"); }
+    }
+
+    // === DELETE ===
+    async function deleteQuestion(logId) {
+      if (!confirm("Delete this question from the log?")) return;
+      try {
+        const resp = await apiFetch(`/logs/${logId}`, { method: "DELETE" });
+        if (resp.ok) {
+          const row = document.getElementById(`row-${logId}`);
+          if (row) {
+            row.classList.add("removing");
+            setTimeout(() => {
+              allLogs = allLogs.filter(l => l.id !== logId);
+              renderCategorizedLogs();
+              renderRecentLogs();
+              loadStats();
+              updateNavBadge();
+            }, 350);
+          }
+          toast("Question deleted", "success");
+        } else { toast("Failed to delete", "error"); }
+      } catch { toast("Failed to delete", "error"); }
+    }
+
+    function updateNavBadge() {
+      const badge = document.getElementById("nav-log-count");
+      const newCount = allLogs.filter(l => l.status === "new").length;
+      if (newCount > 0) { badge.textContent = newCount; badge.style.display = ""; }
+      else { badge.style.display = "none"; }
+    }
+
+    // === UPLOAD ===
     const uploadZone = document.getElementById("upload-zone");
     const fileInput = document.getElementById("file-input");
     const uploadProgress = document.getElementById("upload-progress");
-
     uploadZone.addEventListener("click", () => fileInput.click());
     uploadZone.addEventListener("dragover", (e) => { e.preventDefault(); uploadZone.classList.add("dragover"); });
     uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("dragover"));
-    uploadZone.addEventListener("drop", (e) => {
-      e.preventDefault();
-      uploadZone.classList.remove("dragover");
-      if (e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files);
-    });
+    uploadZone.addEventListener("drop", (e) => { e.preventDefault(); uploadZone.classList.remove("dragover"); if (e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files); });
     fileInput.addEventListener("change", () => { if (fileInput.files.length) uploadFiles(fileInput.files); });
 
     async function uploadFiles(files) {
       const formData = new FormData();
       let count = 0;
-      for (const f of files) {
-        if (f.name.toLowerCase().endsWith(".pdf")) { formData.append("files", f); count++; }
-      }
+      for (const f of files) { if (f.name.toLowerCase().endsWith(".pdf")) { formData.append("files", f); count++; } }
       if (!count) { toast("Please select PDF files only.", "error"); return; }
-
-      uploadProgress.style.display = "block";
-      uploadZone.style.display = "none";
-
+      uploadProgress.style.display = "block"; uploadZone.style.display = "none";
       try {
         const resp = await apiFetch("/ingest", { method: "POST", body: formData });
-        if (resp.ok) {
-          const data = await resp.json();
-          toast(`Uploaded ${data.files_processed} file(s) — ${data.total_chunks} chunks indexed`, "success");
-          loadAllData();
-        } else {
-          const err = await resp.json().catch(() => ({}));
-          toast(err.detail || "Upload failed.", "error");
-        }
-      } catch {
-        toast("Upload failed. Is the backend running?", "error");
-      }
-
-      uploadProgress.style.display = "none";
-      uploadZone.style.display = "";
-      fileInput.value = "";
+        if (resp.ok) { const data = await resp.json(); toast(`Uploaded ${data.files_processed} file(s) — ${data.total_chunks} chunks indexed`, "success"); loadAllData(); }
+        else { const err = await resp.json().catch(() => ({})); toast(err.detail || "Upload failed.", "error"); }
+      } catch { toast("Upload failed.", "error"); }
+      uploadProgress.style.display = "none"; uploadZone.style.display = ""; fileInput.value = "";
     }
 
-    // ============ CLEAR KNOWLEDGE BASE ============
+    // === CLEAR KB ===
     document.getElementById("clear-kb-btn").addEventListener("click", async () => {
-      if (!confirm("Are you sure? This will permanently delete ALL documents from the knowledge base.")) return;
-
+      if (!confirm("Are you sure? This will permanently delete ALL documents.")) return;
       try {
         const resp = await apiFetch("/clear", { method: "POST" });
-        if (resp.ok) {
-          toast("Knowledge base cleared successfully.", "success");
-          loadAllData();
-        } else {
-          toast("Failed to clear knowledge base.", "error");
-        }
-      } catch {
-        toast("Failed to clear knowledge base.", "error");
-      }
+        if (resp.ok) { toast("Knowledge base cleared.", "success"); loadAllData(); }
+        else { toast("Failed to clear.", "error"); }
+      } catch { toast("Failed to clear.", "error"); }
     });
 
-    // ============ REFRESH LOGS ============
-    document.getElementById("refresh-logs-btn").addEventListener("click", () => {
-      loadLogs();
-      toast("Logs refreshed", "info");
-    });
-
-    // ============ HELPERS ============
-    function esc(text) {
-      const d = document.createElement("div");
-      d.textContent = text;
-      return d.innerHTML;
-    }
-
-    function formatReason(reason) {
-      return reason.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-    }
-
+    // === HELPERS ===
+    function esc(t) { const d = document.createElement("div"); d.textContent = t; return d.innerHTML; }
+    function fmtReason(r) { return r.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()); }
     function toast(msg, type = "success") {
-      const container = document.getElementById("toast-container");
-      const el = document.createElement("div");
-      el.className = `toast ${type}`;
-      el.textContent = msg;
-      container.appendChild(el);
+      const el = document.createElement("div"); el.className = `toast ${type}`; el.textContent = msg;
+      document.getElementById("toast-container").appendChild(el);
       setTimeout(() => el.remove(), 4000);
     }
   </script>
-
 </body>
 </html>
