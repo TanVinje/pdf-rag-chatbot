@@ -14,6 +14,7 @@ from app.models.schemas import (
 from app.services.pdf_processor import extract_text_from_pdf
 from app.services.vector_store import VectorStore
 from app.services.rag_service import RAGService
+from app.services.question_logger import QuestionLogger
 
 logging.basicConfig(
     level=logging.INFO,
@@ -129,6 +130,20 @@ async def clear_knowledge_base(authorization: str | None = Header(default=None))
     vector_store.clear()
     logger.info("Knowledge base cleared by admin.")
     return {"message": "Knowledge base cleared successfully."}
+
+
+@app.get("/logs")
+async def get_unanswered_logs(
+    authorization: str | None = Header(default=None),
+    limit: int = 50,
+):
+    """[ADMIN ONLY] Get recent unanswered questions log."""
+    _verify_admin(authorization)
+    logs = QuestionLogger.get_recent_logs(limit=limit)
+    return {
+        "total": len(logs),
+        "logs": logs,
+    }
 
 
 @app.get("/health", response_model=HealthResponse)

@@ -9,5 +9,8 @@ venv/
 # ChromaDB storage
 chroma_db/
 
+# Logs
+unanswered_questions.jsonl
+
 # OS
 .DS_Store

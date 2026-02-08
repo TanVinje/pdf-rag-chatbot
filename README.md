@@ -81,9 +81,26 @@ Click the **gear icon** in the extension popup to change the backend URL (defaul
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/ingest` | Upload PDF files for indexing |
+| `POST` | `/ingest` | [Admin Only] Upload PDF files for indexing |
 | `POST` | `/chat` | Ask a question about uploaded documents |
 | `GET` | `/health` | Health check with document count |
+| `POST` | `/clear` | [Admin Only] Clear entire knowledge base |
+| `GET` | `/logs` | [Admin Only] View unanswered questions log |
+
+### Admin Endpoints
+
+Admin endpoints require a `Authorization: Bearer <ADMIN_SECRET>` header. Set `ADMIN_SECRET` in your `.env` file.
+
+**GET /logs** - View questions the bot couldn't answer (helps identify knowledge gaps)
+
+Query parameters:
+- `limit` (optional, default: 50): Number of log entries to return
+
+Response includes:
+- `timestamp`: When the question was asked
+- `question`: The user's question
+- `reason`: Why it couldn't be answered (`no_documents`, `low_similarity`, `llm_error`)
+- `similarity_score`: Best match score (if applicable)
 
 ## Project Structure
 

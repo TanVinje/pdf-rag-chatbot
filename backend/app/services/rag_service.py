@@ -5,6 +5,7 @@ from openai import OpenAI
 from app.config import settings
 from app.models.schemas import ChatResponse, Citation
 from app.services.vector_store import VectorStore, QueryResult
+from app.services.question_logger import QuestionLogger
 
 logger = logging.getLogger(__name__)
 
@@ -138,6 +139,7 @@ class RAGService:
         results = self._vector_store.query(question, top_k=settings.TOP_K)
 
         if not results:
+            QuestionLogger.log_unanswered(question, "no_documents")
             return ChatResponse(
                 answer="I don't have any information loaded yet. Please check back later or contact our support team: https://nexzoneo.com/contact.php",
                 citations=[],
@@ -148,6 +150,7 @@ class RAGService:
         logger.info(f"Best similarity score: {best_score:.4f} (threshold: {settings.SIMILARITY_THRESHOLD})")
 
         if best_score < settings.SIMILARITY_THRESHOLD:
+            QuestionLogger.log_unanswered(question, "low_similarity", similarity_score=best_score)
             return ChatResponse(
                 answer="I don't have that information. You can reach our support team here: https://nexzoneo.com/contact.php",
                 citations=[],
@@ -176,6 +179,7 @@ class RAGService:
             answer = response.choices[0].message.content or "No response generated."
         except Exception as e:
             logger.error(f"LLM call failed: {e}")
+            QuestionLogger.log_unanswered(question, f"llm_error: {str(e)[:100]}")
             return ChatResponse(
                 answer="Something went wrong. Please try again or contact our support team: https://nexzoneo.com/contact.php",
                 citations=[],
