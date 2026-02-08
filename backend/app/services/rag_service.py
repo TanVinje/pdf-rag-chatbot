@@ -113,10 +113,14 @@ def _create_llm_client() -> tuple[OpenAI, str]:
 
     # Fall back to OpenAI
     if settings.OPENAI_API_KEY and settings.OPENAI_API_KEY.strip():
-        client = OpenAI(api_key=settings.OPENAI_API_KEY)
-        logger.info(f"Using OpenAI for chat with model: {settings.OPENAI_CHAT_MODEL}")
-        return client, settings.OPENAI_CHAT_MODEL
+        try:
+            client = OpenAI(api_key=settings.OPENAI_API_KEY)
+            logger.info(f"Using OpenAI for chat with model: {settings.OPENAI_CHAT_MODEL}")
+            return client, settings.OPENAI_CHAT_MODEL
+        except Exception as e:
+            logger.error(f"Failed to initialize OpenAI client: {e}")
 
+    logger.warning("No LLM backend available (Ollama not running, no valid OpenAI key).")
     return None, ""
 
 
