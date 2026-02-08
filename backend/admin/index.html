@@ -448,6 +448,26 @@
     loginBtn.addEventListener("click", doLogin);
     secretInput.addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); });
 
+    // Restore session on page load
+    (async function restoreSession() {
+      const saved = sessionStorage.getItem("adminToken");
+      if (saved) {
+        adminToken = saved;
+        try {
+          const resp = await apiFetch("/stats");
+          if (resp.ok) {
+            loginPage.style.display = "none";
+            dashboard.classList.add("visible");
+            loadAllData();
+            return;
+          }
+        } catch {}
+        // Token invalid or backend unreachable — clear and show login
+        sessionStorage.removeItem("adminToken");
+        adminToken = "";
+      }
+    })();
+
     async function doLogin() {
       const secret = secretInput.value.trim();
       if (!secret) return;
@@ -455,6 +475,7 @@
       try {
         const resp = await apiFetch("/stats");
         if (resp.ok) {
+          sessionStorage.setItem("adminToken", adminToken);
           loginPage.style.display = "none";
           dashboard.classList.add("visible");
           loadAllData();
@@ -470,6 +491,7 @@
 
     document.getElementById("logout-btn").addEventListener("click", () => {
       adminToken = "";
+      sessionStorage.removeItem("adminToken");
       dashboard.classList.remove("visible");
       loginPage.style.display = "flex";
       secretInput.value = "";
