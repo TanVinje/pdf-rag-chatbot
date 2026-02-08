@@ -149,6 +149,14 @@ async def get_unanswered_logs(
     }
 
 
+@app.get("/documents")
+async def list_documents(authorization: str | None = Header(default=None)):
+    """[ADMIN ONLY] List all uploaded PDFs in the knowledge base."""
+    _verify_admin(authorization)
+    docs = vector_store.list_documents() if vector_store else []
+    return {"documents": docs}
+
+
 @app.get("/stats")
 async def get_stats(authorization: str | None = Header(default=None)):
     """[ADMIN ONLY] Get chatbot statistics."""

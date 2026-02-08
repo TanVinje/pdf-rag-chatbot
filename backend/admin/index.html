@@ -3,521 +3,879 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nexzoneo Admin Dashboard</title>
+  <title>Nexzoneo Admin</title>
   <style>
+    /* ========== RESET & VARIABLES ========== */
     :root {
-      --bg: #0f172a;
-      --bg-card: #1e293b;
-      --bg-input: #334155;
-      --text: #f1f5f9;
-      --text-muted: #94a3b8;
+      --bg: #0b1120;
+      --bg-card: #151d30;
+      --bg-card-hover: #1a2540;
+      --bg-input: #1e293b;
+      --bg-sidebar: #0f1729;
+      --text: #e2e8f0;
+      --text-muted: #64748b;
+      --text-light: #94a3b8;
       --brand: #3b82f6;
       --brand-hover: #2563eb;
+      --brand-glow: rgba(59, 130, 246, 0.15);
       --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.1);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.1);
       --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.1);
       --danger-hover: #dc2626;
-      --border: #334155;
+      --border: #1e293b;
+      --border-light: #2a3a52;
       --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+      --transition: 0.2s ease;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
+      line-height: 1.5;
     }
 
-    /* ---------- Header ---------- */
-    .header {
+    /* ========== LOGIN PAGE ========== */
+    .login-page {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .login-card {
       background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .login-logo {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .login-logo svg { color: #fff; }
+
+    .login-card h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .login-card h1 span { color: var(--brand); }
+
+    .login-subtitle {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-bottom: 28px;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      transition: border-color var(--transition);
+      margin-bottom: 12px;
+    }
+
+    .login-input:focus { border-color: var(--brand); }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+
+    .login-btn:hover { background: var(--brand-hover); }
+
+    .login-error {
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+    }
+
+    /* ========== DASHBOARD LAYOUT ========== */
+    .dashboard { display: none; }
+    .dashboard.visible { display: flex; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 10;
+    }
+
+    .sidebar-header {
+      padding: 20px 20px 16px;
       border-bottom: 1px solid var(--border);
-      padding: 16px 32px;
+    }
+
+    .sidebar-header h2 {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .sidebar-header h2 span { color: var(--brand); }
+
+    .sidebar-header p {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 12px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-light);
+      cursor: pointer;
+      transition: all var(--transition);
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover { background: var(--bg-card); color: var(--text); }
+    .nav-item.active { background: var(--brand-glow); color: var(--brand); }
+    .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      transition: all var(--transition);
+    }
+
+    .logout-btn:hover { color: var(--danger); background: var(--danger-bg); }
+
+    /* Main content */
+    .main-content {
+      flex: 1;
+      margin-left: 240px;
+      padding: 28px 32px;
+      min-height: 100vh;
+    }
+
+    .page-header {
+      margin-bottom: 24px;
+    }
+
+    .page-header h2 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .page-header p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ========== PAGES (show/hide) ========== */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ========== STAT CARDS ========== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: border-color var(--transition);
+    }
+
+    .stat-card:hover { border-color: var(--border-light); }
+
+    .stat-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .stat-icon.blue { background: var(--brand-glow); color: var(--brand); }
+    .stat-icon.green { background: var(--success-bg); color: var(--success); }
+    .stat-icon.yellow { background: var(--warning-bg); color: var(--warning); }
+    .stat-icon.red { background: var(--danger-bg); color: var(--danger); }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* ========== CARDS ========== */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
-    .header h1 {
-      font-size: 20px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .header h1 span { color: var(--brand); }
-
-    .header-status {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--danger);
-    }
-
-    .status-dot.connected { background: var(--success); }
-
-    /* ---------- Auth Panel ---------- */
-    .auth-panel {
-      max-width: 500px;
-      margin: 80px auto;
-      background: var(--bg-card);
-      border-radius: var(--radius);
-      padding: 32px;
-      text-align: center;
-    }
-
-    .auth-panel h2 {
-      margin-bottom: 8px;
-      font-size: 18px;
-    }
-
-    .auth-panel p {
-      color: var(--text-muted);
-      font-size: 13px;
-      margin-bottom: 20px;
-    }
-
-    .auth-row {
-      display: flex;
-      gap: 8px;
-    }
-
-    .auth-row input {
-      flex: 1;
-    }
-
-    /* ---------- Main Layout ---------- */
-    .main {
-      max-width: 1100px;
-      margin: 24px auto;
-      padding: 0 24px;
-      display: none;
-    }
-
-    .main.visible { display: block; }
-
-    /* ---------- Stats ---------- */
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .stat-card {
-      background: var(--bg-card);
-      border-radius: var(--radius);
-      padding: 20px;
-      text-align: center;
-    }
-
-    .stat-card .stat-value {
-      font-size: 32px;
-      font-weight: 700;
-      color: var(--brand);
-    }
-
-    .stat-card .stat-label {
-      font-size: 12px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-top: 4px;
-    }
-
-    /* ---------- Cards ---------- */
-    .card {
-      background: var(--bg-card);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-    }
-
-    .card h3 {
-      font-size: 15px;
+    .card-header h3 {
+      font-size: 14px;
       font-weight: 600;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
 
-    .card h3 .badge {
-      font-size: 11px;
-      background: var(--brand);
-      color: #fff;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-weight: 500;
-    }
+    .card-body { padding: 20px; }
 
-    /* ---------- Form Elements ---------- */
-    input, select {
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 9px 14px;
-      color: var(--text);
-      font-size: 13px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    input:focus { border-color: var(--brand); }
-
+    /* ========== BUTTONS ========== */
     .btn {
-      padding: 9px 18px;
+      padding: 8px 16px;
       border: none;
-      border-radius: 8px;
+      border-radius: var(--radius-sm);
       font-size: 13px;
       font-weight: 500;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: all var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       color: #fff;
     }
 
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
     .btn-primary { background: var(--brand); }
     .btn-primary:hover { background: var(--brand-hover); }
     .btn-danger { background: var(--danger); }
     .btn-danger:hover { background: var(--danger-hover); }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-light);
+    }
+    .btn-outline:hover { border-color: var(--text-light); color: var(--text); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* ---------- File Upload ---------- */
+    /* ========== UPLOAD ZONE ========== */
     .upload-zone {
-      border: 2px dashed var(--border);
+      border: 2px dashed var(--border-light);
       border-radius: var(--radius);
-      padding: 32px;
+      padding: 40px 24px;
       text-align: center;
       cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
+      transition: all var(--transition);
     }
 
     .upload-zone:hover, .upload-zone.dragover {
       border-color: var(--brand);
-      background: rgba(59, 130, 246, 0.05);
+      background: var(--brand-glow);
     }
 
-    .upload-zone p {
-      color: var(--text-muted);
-      font-size: 13px;
-      margin-top: 8px;
+    .upload-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--brand-glow);
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--brand);
+      margin-bottom: 12px;
     }
 
-    .upload-zone .upload-icon {
-      font-size: 32px;
-      margin-bottom: 4px;
-    }
+    .upload-zone h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .upload-zone p { font-size: 12px; color: var(--text-muted); }
 
-    /* ---------- Logs Table ---------- */
-    .logs-table {
+    /* ========== TABLE ========== */
+    .table-wrapper { overflow-x: auto; }
+
+    table {
       width: 100%;
       border-collapse: collapse;
       font-size: 13px;
     }
 
-    .logs-table th {
+    th {
       text-align: left;
       font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: var(--text-muted);
-      padding: 10px 12px;
+      padding: 12px 16px;
       border-bottom: 1px solid var(--border);
+      white-space: nowrap;
     }
 
-    .logs-table td {
-      padding: 10px 12px;
+    td {
+      padding: 12px 16px;
       border-bottom: 1px solid var(--border);
-      vertical-align: top;
+      vertical-align: middle;
     }
 
-    .logs-table tr:last-child td { border-bottom: none; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--bg-card-hover); }
 
-    .logs-table .reason-badge {
+    /* ========== BADGES ========== */
+    .badge {
       display: inline-block;
-      padding: 2px 8px;
-      border-radius: 10px;
+      padding: 3px 10px;
+      border-radius: 20px;
       font-size: 11px;
-      font-weight: 500;
+      font-weight: 600;
     }
 
-    .reason-badge.low_similarity { background: #fef3c7; color: #92400e; }
-    .reason-badge.no_documents { background: #fee2e2; color: #991b1b; }
-    .reason-badge.llm_error { background: #fce7f3; color: #9d174d; }
+    .badge-blue { background: var(--brand-glow); color: var(--brand); }
+    .badge-yellow { background: var(--warning-bg); color: var(--warning); }
+    .badge-red { background: var(--danger-bg); color: var(--danger); }
+    .badge-pink { background: rgba(236, 72, 153, 0.1); color: #ec4899; }
 
+    /* ========== EMPTY STATE ========== */
     .empty-state {
       text-align: center;
-      padding: 32px;
+      padding: 40px 20px;
       color: var(--text-muted);
-      font-size: 13px;
     }
 
-    /* ---------- Toast ---------- */
-    .toast {
+    .empty-state svg { margin-bottom: 12px; opacity: 0.4; }
+    .empty-state p { font-size: 13px; }
+
+    /* ========== TOAST ========== */
+    .toast-container {
       position: fixed;
       bottom: 24px;
       right: 24px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
       padding: 12px 20px;
-      border-radius: 8px;
+      border-radius: var(--radius-sm);
       font-size: 13px;
       font-weight: 500;
       color: #fff;
-      z-index: 999;
-      animation: toast-in 0.3s ease;
+      animation: slideIn 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
 
     .toast.success { background: var(--success); }
     .toast.error { background: var(--danger); }
+    .toast.info { background: var(--brand); }
 
-    @keyframes toast-in {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
     }
 
-    /* ---------- Responsive ---------- */
-    @media (max-width: 640px) {
-      .stats-row { grid-template-columns: 1fr; }
-      .header { padding: 14px 16px; }
-      .main { padding: 0 12px; }
+    /* ========== LOADING SPINNER ========== */
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--brand);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main-content { margin-left: 0; padding: 16px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <h1><span>Nexzoneo</span> Admin Dashboard</h1>
-    <div class="header-status">
-      <div class="status-dot" id="status-dot"></div>
-      <span id="status-text">Disconnected</span>
+  <!-- ========== LOGIN PAGE ========== -->
+  <div class="login-page" id="login-page">
+    <div class="login-card">
+      <div class="login-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <h1><span>Nexzoneo</span> Admin</h1>
+      <p class="login-subtitle">Enter your admin secret to continue</p>
+      <input type="password" class="login-input" id="admin-secret" placeholder="Admin Secret" autocomplete="off" />
+      <button class="login-btn" id="login-btn">Sign In</button>
+      <p class="login-error" id="login-error"></p>
     </div>
   </div>
 
-  <!-- Auth Panel -->
-  <div class="auth-panel" id="auth-panel">
-    <h2>Admin Login</h2>
-    <p>Enter your admin secret to access the dashboard.</p>
-    <div class="auth-row">
-      <input type="password" id="admin-secret" placeholder="Admin Secret" />
-      <button class="btn btn-primary" id="login-btn">Login</button>
-    </div>
-    <p id="auth-error" style="color: var(--danger); margin-top: 12px; display: none;"></p>
-  </div>
+  <!-- ========== DASHBOARD ========== -->
+  <div class="dashboard" id="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2><span>Nexzoneo</span> Admin</h2>
+        <p>Knowledge Base Manager</p>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-page="overview">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Overview
+        </button>
+        <button class="nav-item" data-page="documents">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Documents
+        </button>
+        <button class="nav-item" data-page="upload">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Upload PDFs
+        </button>
+        <button class="nav-item" data-page="logs">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Unanswered Logs
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="logout-btn" id="logout-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </button>
+      </div>
+    </aside>
 
-  <!-- Main Dashboard -->
-  <div class="main" id="main-content">
-    <!-- Stats -->
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-value" id="stat-docs">0</div>
-        <div class="stat-label">Documents Indexed</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="stat-unanswered">0</div>
-        <div class="stat-label">Unanswered Questions</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="stat-top-reason">-</div>
-        <div class="stat-label">Top Failure Reason</div>
-      </div>
-    </div>
+    <!-- Main Content -->
+    <div class="main-content">
 
-    <!-- PDF Upload -->
-    <div class="card">
-      <h3>Upload PDFs <span class="badge">Knowledge Base</span></h3>
-      <div class="upload-zone" id="upload-zone">
-        <div class="upload-icon">+</div>
-        <p>Drag &amp; drop PDF files here, or click to select</p>
-        <input type="file" id="file-input" accept=".pdf" multiple hidden />
-      </div>
-      <div style="margin-top: 12px; display: flex; gap: 8px;">
-        <button class="btn btn-danger" id="clear-kb-btn">Clear Knowledge Base</button>
-      </div>
-    </div>
+      <!-- ===== OVERVIEW PAGE ===== -->
+      <div class="page active" id="page-overview">
+        <div class="page-header">
+          <h2>Overview</h2>
+          <p>Monitor your chatbot's knowledge base and performance</p>
+        </div>
 
-    <!-- Unanswered Questions Log -->
-    <div class="card">
-      <h3>Unanswered Questions <span class="badge" id="log-count">0</span></h3>
-      <div id="logs-container">
-        <div class="empty-state">No unanswered questions yet.</div>
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div class="stat-value" id="stat-docs">-</div>
+            <div class="stat-label">Document Chunks</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="stat-value" id="stat-pdfs">-</div>
+            <div class="stat-label">PDF Files</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon yellow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="stat-value" id="stat-unanswered">-</div>
+            <div class="stat-label">Unanswered Questions</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="stat-value" id="stat-reason">-</div>
+            <div class="stat-label">Top Failure Reason</div>
+          </div>
+        </div>
+
+        <!-- Recent unanswered -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Recent Unanswered Questions</h3>
+            <button class="btn btn-sm btn-outline" onclick="navigateTo('logs')">View All</button>
+          </div>
+          <div class="card-body" id="recent-logs-body">
+            <div class="empty-state"><p>Loading...</p></div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
+
+      <!-- ===== DOCUMENTS PAGE ===== -->
+      <div class="page" id="page-documents">
+        <div class="page-header">
+          <h2>Documents</h2>
+          <p>All PDFs currently in the knowledge base</p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Uploaded PDFs</h3>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-sm btn-primary" onclick="navigateTo('upload')">Upload New</button>
+              <button class="btn btn-sm btn-danger" id="clear-kb-btn">Clear All</button>
+            </div>
+          </div>
+          <div class="card-body" id="docs-table-body">
+            <div class="empty-state"><p>Loading...</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== UPLOAD PAGE ===== -->
+      <div class="page" id="page-upload">
+        <div class="page-header">
+          <h2>Upload PDFs</h2>
+          <p>Add new documents to the chatbot's knowledge base</p>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="upload-zone" id="upload-zone">
+              <div class="upload-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <h4>Drop PDF files here</h4>
+              <p>or click to browse your files</p>
+              <input type="file" id="file-input" accept=".pdf" multiple hidden />
+            </div>
+            <div id="upload-progress" style="margin-top:16px;display:none;">
+              <div style="display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:13px;">
+                <div class="spinner"></div>
+                <span>Uploading and processing PDFs...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== LOGS PAGE ===== -->
+      <div class="page" id="page-logs">
+        <div class="page-header">
+          <h2>Unanswered Questions</h2>
+          <p>Questions the chatbot could not answer — use this to identify knowledge gaps</p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Question Log <span class="badge badge-blue" id="log-count">0</span></h3>
+            <button class="btn btn-sm btn-outline" id="refresh-logs-btn">Refresh</button>
+          </div>
+          <div class="card-body" id="logs-table-body">
+            <div class="empty-state"><p>Loading...</p></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main-content -->
+  </div><!-- /dashboard -->
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toast-container"></div>
 
   <script>
+    // ============ CONFIG ============
     const API = window.location.origin;
     let adminToken = "";
 
-    // DOM refs
-    const authPanel = document.getElementById("auth-panel");
-    const mainContent = document.getElementById("main-content");
+    // ============ DOM REFS ============
+    const loginPage = document.getElementById("login-page");
+    const dashboard = document.getElementById("dashboard");
     const loginBtn = document.getElementById("login-btn");
-    const adminSecretInput = document.getElementById("admin-secret");
-    const authError = document.getElementById("auth-error");
-    const statusDot = document.getElementById("status-dot");
-    const statusText = document.getElementById("status-text");
+    const secretInput = document.getElementById("admin-secret");
+    const loginError = document.getElementById("login-error");
 
-    // --- Auth ---
-    loginBtn.addEventListener("click", login);
-    adminSecretInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") login();
-    });
+    // ============ AUTH ============
+    loginBtn.addEventListener("click", doLogin);
+    secretInput.addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); });
 
-    async function login() {
-      const secret = adminSecretInput.value.trim();
+    async function doLogin() {
+      const secret = secretInput.value.trim();
       if (!secret) return;
-
       adminToken = secret;
 
       try {
-        const resp = await fetch(`${API}/stats`, {
-          headers: { Authorization: `Bearer ${adminToken}` },
-        });
-
+        const resp = await apiFetch("/stats");
         if (resp.ok) {
-          authPanel.style.display = "none";
-          mainContent.classList.add("visible");
-          statusDot.classList.add("connected");
-          statusText.textContent = "Connected";
-          loadDashboard();
+          loginPage.style.display = "none";
+          dashboard.classList.add("visible");
+          loadAllData();
         } else {
-          showAuthError("Invalid admin secret.");
+          showLoginError("Invalid admin secret.");
         }
       } catch {
-        showAuthError("Cannot connect to backend.");
+        showLoginError("Cannot connect to backend. Is it running?");
       }
     }
 
-    function showAuthError(msg) {
-      authError.textContent = msg;
-      authError.style.display = "block";
-      setTimeout(() => { authError.style.display = "none"; }, 3000);
+    function showLoginError(msg) {
+      loginError.textContent = msg;
+      loginError.style.display = "block";
+      setTimeout(() => { loginError.style.display = "none"; }, 4000);
     }
 
-    // --- Dashboard Data ---
-    async function loadDashboard() {
-      await Promise.all([loadStats(), loadLogs()]);
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      adminToken = "";
+      dashboard.classList.remove("visible");
+      loginPage.style.display = "flex";
+      secretInput.value = "";
+    });
+
+    // ============ NAVIGATION ============
+    const navItems = document.querySelectorAll(".nav-item");
+    const pages = document.querySelectorAll(".page");
+
+    navItems.forEach((item) => {
+      item.addEventListener("click", () => {
+        navigateTo(item.dataset.page);
+      });
+    });
+
+    function navigateTo(pageId) {
+      navItems.forEach((n) => n.classList.remove("active"));
+      pages.forEach((p) => p.classList.remove("active"));
+      const navBtn = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+      if (navBtn) navBtn.classList.add("active");
+      const page = document.getElementById(`page-${pageId}`);
+      if (page) page.classList.add("active");
     }
 
+    // ============ API HELPER ============
+    async function apiFetch(path, options = {}) {
+      const headers = { Authorization: `Bearer ${adminToken}`, ...(options.headers || {}) };
+      return fetch(`${API}${path}`, { ...options, headers });
+    }
+
+    // ============ LOAD ALL DATA ============
+    async function loadAllData() {
+      await Promise.all([loadStats(), loadDocuments(), loadLogs()]);
+    }
+
+    // ============ STATS ============
     async function loadStats() {
       try {
-        const resp = await fetch(`${API}/stats`, {
-          headers: { Authorization: `Bearer ${adminToken}` },
-        });
-        const data = await resp.json();
-        document.getElementById("stat-docs").textContent = data.document_count;
-        document.getElementById("stat-unanswered").textContent = data.total_unanswered;
+        const [statsResp, docsResp] = await Promise.all([
+          apiFetch("/stats"),
+          apiFetch("/documents"),
+        ]);
+        const stats = await statsResp.json();
+        const docs = await docsResp.json();
 
-        const reasons = data.unanswered_by_reason || {};
-        const topReason = Object.entries(reasons).sort((a, b) => b[1] - a[1])[0];
-        document.getElementById("stat-top-reason").textContent = topReason
-          ? topReason[0].replace("_", " ")
-          : "-";
+        document.getElementById("stat-docs").textContent = stats.document_count;
+        document.getElementById("stat-pdfs").textContent = docs.documents.length;
+        document.getElementById("stat-unanswered").textContent = stats.total_unanswered;
+
+        const reasons = stats.unanswered_by_reason || {};
+        const top = Object.entries(reasons).sort((a, b) => b[1] - a[1])[0];
+        document.getElementById("stat-reason").textContent = top ? formatReason(top[0]) : "None";
       } catch {
         toast("Failed to load stats", "error");
       }
     }
 
-    async function loadLogs() {
+    // ============ DOCUMENTS ============
+    async function loadDocuments() {
       try {
-        const resp = await fetch(`${API}/logs?limit=100`, {
-          headers: { Authorization: `Bearer ${adminToken}` },
-        });
+        const resp = await apiFetch("/documents");
         const data = await resp.json();
-        const container = document.getElementById("logs-container");
-        document.getElementById("log-count").textContent = data.total;
+        const body = document.getElementById("docs-table-body");
 
-        if (!data.logs || data.logs.length === 0) {
-          container.innerHTML = '<div class="empty-state">No unanswered questions yet.</div>';
+        if (!data.documents || data.documents.length === 0) {
+          body.innerHTML = `
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <p>No documents uploaded yet.</p>
+            </div>`;
           return;
         }
 
-        let html = `<table class="logs-table">
-          <thead><tr><th>Time</th><th>Question</th><th>Reason</th><th>Score</th></tr></thead>
+        let html = `<div class="table-wrapper"><table>
+          <thead><tr><th>PDF Name</th><th>Pages</th><th>Chunks</th></tr></thead>
           <tbody>`;
 
-        for (const log of data.logs) {
-          const time = new Date(log.timestamp).toLocaleString();
-          const reason = log.reason.startsWith("llm_error") ? "llm_error" : log.reason;
-          const score = log.similarity_score != null ? log.similarity_score.toFixed(3) : "-";
+        for (const doc of data.documents) {
           html += `<tr>
-            <td style="white-space: nowrap; font-size: 12px; color: var(--text-muted);">${time}</td>
-            <td>${escapeHtml(log.question)}</td>
-            <td><span class="reason-badge ${reason}">${reason}</span></td>
-            <td>${score}</td>
+            <td style="font-weight:500;">
+              <span style="display:inline-flex;align-items:center;gap:6px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                ${esc(doc.pdf_name)}
+              </span>
+            </td>
+            <td>${doc.pages}</td>
+            <td><span class="badge badge-blue">${doc.chunks}</span></td>
           </tr>`;
         }
 
-        html += "</tbody></table>";
-        container.innerHTML = html;
+        html += "</tbody></table></div>";
+        body.innerHTML = html;
+      } catch {
+        toast("Failed to load documents", "error");
+      }
+    }
+
+    // ============ LOGS ============
+    async function loadLogs() {
+      try {
+        const resp = await apiFetch("/logs?limit=200");
+        const data = await resp.json();
+        document.getElementById("log-count").textContent = data.total;
+
+        // Full logs page
+        renderLogsTable(data.logs, "logs-table-body", 200);
+
+        // Recent logs on overview (last 5)
+        renderLogsTable(data.logs.slice(0, 5), "recent-logs-body", 5);
       } catch {
         toast("Failed to load logs", "error");
       }
     }
 
-    // --- PDF Upload ---
+    function renderLogsTable(logs, containerId, limit) {
+      const container = document.getElementById(containerId);
+
+      if (!logs || logs.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <p>No unanswered questions yet. Your knowledge base is doing great!</p>
+          </div>`;
+        return;
+      }
+
+      let html = `<div class="table-wrapper"><table>
+        <thead><tr><th>Time</th><th>Question</th><th>Reason</th><th>Score</th></tr></thead>
+        <tbody>`;
+
+      for (const log of logs.slice(0, limit)) {
+        const time = new Date(log.timestamp).toLocaleString();
+        const reason = log.reason.startsWith("llm_error") ? "llm_error" : log.reason;
+        const score = log.similarity_score != null ? log.similarity_score.toFixed(3) : "-";
+        const badgeClass = reason === "low_similarity" ? "badge-yellow" :
+                           reason === "no_documents" ? "badge-red" : "badge-pink";
+
+        html += `<tr>
+          <td style="white-space:nowrap;font-size:12px;color:var(--text-muted);">${time}</td>
+          <td>${esc(log.question)}</td>
+          <td><span class="badge ${badgeClass}">${formatReason(reason)}</span></td>
+          <td style="font-family:monospace;font-size:12px;">${score}</td>
+        </tr>`;
+      }
+
+      html += "</tbody></table></div>";
+      container.innerHTML = html;
+    }
+
+    // ============ UPLOAD ============
     const uploadZone = document.getElementById("upload-zone");
     const fileInput = document.getElementById("file-input");
+    const uploadProgress = document.getElementById("upload-progress");
 
     uploadZone.addEventListener("click", () => fileInput.click());
-
-    uploadZone.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      uploadZone.classList.add("dragover");
-    });
-
-    uploadZone.addEventListener("dragleave", () => {
-      uploadZone.classList.remove("dragover");
-    });
-
+    uploadZone.addEventListener("dragover", (e) => { e.preventDefault(); uploadZone.classList.add("dragover"); });
+    uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("dragover"));
     uploadZone.addEventListener("drop", (e) => {
       e.preventDefault();
       uploadZone.classList.remove("dragover");
       if (e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files);
     });
-
-    fileInput.addEventListener("change", () => {
-      if (fileInput.files.length) uploadFiles(fileInput.files);
-    });
+    fileInput.addEventListener("change", () => { if (fileInput.files.length) uploadFiles(fileInput.files); });
 
     async function uploadFiles(files) {
       const formData = new FormData();
-      let pdfCount = 0;
-      for (const file of files) {
-        if (file.name.toLowerCase().endsWith(".pdf")) {
-          formData.append("files", file);
-          pdfCount++;
-        }
+      let count = 0;
+      for (const f of files) {
+        if (f.name.toLowerCase().endsWith(".pdf")) { formData.append("files", f); count++; }
       }
+      if (!count) { toast("Please select PDF files only.", "error"); return; }
 
-      if (pdfCount === 0) {
-        toast("Please select PDF files only.", "error");
-        return;
-      }
-
-      uploadZone.innerHTML = '<p>Uploading...</p>';
+      uploadProgress.style.display = "block";
+      uploadZone.style.display = "none";
 
       try {
-        const resp = await fetch(`${API}/ingest`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${adminToken}` },
-          body: formData,
-        });
-
+        const resp = await apiFetch("/ingest", { method: "POST", body: formData });
         if (resp.ok) {
           const data = await resp.json();
-          toast(`Uploaded ${data.files_processed} file(s), ${data.total_chunks} chunks indexed.`, "success");
-          loadDashboard();
+          toast(`Uploaded ${data.files_processed} file(s) — ${data.total_chunks} chunks indexed`, "success");
+          loadAllData();
         } else {
           const err = await resp.json().catch(() => ({}));
           toast(err.detail || "Upload failed.", "error");
@@ -526,23 +884,20 @@
         toast("Upload failed. Is the backend running?", "error");
       }
 
-      uploadZone.innerHTML = '<div class="upload-icon">+</div><p>Drag & drop PDF files here, or click to select</p>';
+      uploadProgress.style.display = "none";
+      uploadZone.style.display = "";
       fileInput.value = "";
     }
 
-    // --- Clear KB ---
+    // ============ CLEAR KNOWLEDGE BASE ============
     document.getElementById("clear-kb-btn").addEventListener("click", async () => {
-      if (!confirm("Are you sure? This will delete ALL documents from the knowledge base.")) return;
+      if (!confirm("Are you sure? This will permanently delete ALL documents from the knowledge base.")) return;
 
       try {
-        const resp = await fetch(`${API}/clear`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${adminToken}` },
-        });
-
+        const resp = await apiFetch("/clear", { method: "POST" });
         if (resp.ok) {
-          toast("Knowledge base cleared.", "success");
-          loadDashboard();
+          toast("Knowledge base cleared successfully.", "success");
+          loadAllData();
         } else {
           toast("Failed to clear knowledge base.", "error");
         }
@@ -551,19 +906,30 @@
       }
     });
 
-    // --- Helpers ---
-    function escapeHtml(text) {
-      const div = document.createElement("div");
-      div.textContent = text;
-      return div.innerHTML;
+    // ============ REFRESH LOGS ============
+    document.getElementById("refresh-logs-btn").addEventListener("click", () => {
+      loadLogs();
+      toast("Logs refreshed", "info");
+    });
+
+    // ============ HELPERS ============
+    function esc(text) {
+      const d = document.createElement("div");
+      d.textContent = text;
+      return d.innerHTML;
+    }
+
+    function formatReason(reason) {
+      return reason.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
     }
 
     function toast(msg, type = "success") {
+      const container = document.getElementById("toast-container");
       const el = document.createElement("div");
       el.className = `toast ${type}`;
       el.textContent = msg;
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 3500);
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
     }
   </script>
 

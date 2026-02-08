@@ -170,3 +170,26 @@ class VectorStore:
     def document_count(self) -> int:
         """Return the number of documents in the vector store."""
         return self._collection.count()
+
+    def list_documents(self) -> list[dict]:
+        """List all unique PDFs in the vector store with chunk counts."""
+        if self._collection.count() == 0:
+            return []
+
+        all_meta = self._collection.get(include=["metadatas"])
+        pdf_map: dict[str, dict] = {}
+        for meta in all_meta["metadatas"]:
+            name = meta["pdf_name"]
+            if name not in pdf_map:
+                pdf_map[name] = {"pdf_name": name, "chunks": 0, "pages": set()}
+            pdf_map[name]["chunks"] += 1
+            pdf_map[name]["pages"].add(meta["page_number"])
+
+        result = []
+        for info in pdf_map.values():
+            result.append({
+                "pdf_name": info["pdf_name"],
+                "chunks": info["chunks"],
+                "pages": len(info["pages"]),
+            })
+        return sorted(result, key=lambda x: x["pdf_name"])
